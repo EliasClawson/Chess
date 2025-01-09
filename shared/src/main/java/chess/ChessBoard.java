@@ -44,8 +44,39 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-        throw new RuntimeException("Not implemented");
+        board = new ChessPiece[8][8]; //Clears anything on board
+
+        for (ChessGame.TeamColor teamColor : ChessGame.TeamColor.values()) {
+            System.out.println("Adding pieces for " + teamColor);
+
+            int pawnRow = (teamColor == ChessGame.TeamColor.WHITE) ? 2 : 7;
+            int pieceRow = (teamColor == ChessGame.TeamColor.WHITE) ? 1 : 8;
+            // Pawns
+            for (int col = 0; col < 8; col++) {
+                addPiece(new ChessPosition(pawnRow, col + 1), new ChessPiece(teamColor, ChessPiece.PieceType.PAWN));
+            }
+
+            // Rooks
+            addPiece(new ChessPosition(pieceRow, 1), new ChessPiece(teamColor, ChessPiece.PieceType.ROOK));
+            addPiece(new ChessPosition(pieceRow, 8), new ChessPiece(teamColor, ChessPiece.PieceType.ROOK));
+
+            // Knights
+            addPiece(new ChessPosition(pieceRow, 2), new ChessPiece(teamColor, ChessPiece.PieceType.KNIGHT));
+            addPiece(new ChessPosition(pieceRow, 7), new ChessPiece(teamColor, ChessPiece.PieceType.KNIGHT));
+
+            // Bishops
+            addPiece(new ChessPosition(pieceRow, 3), new ChessPiece(teamColor, ChessPiece.PieceType.BISHOP));
+            addPiece(new ChessPosition(pieceRow, 6), new ChessPiece(teamColor, ChessPiece.PieceType.BISHOP));
+
+            // Royalty
+            addPiece(new ChessPosition(pieceRow, 4), new ChessPiece(teamColor, ChessPiece.PieceType.QUEEN));
+            addPiece(new ChessPosition(pieceRow, 5), new ChessPiece(teamColor, ChessPiece.PieceType.KING));
+        }
     }
+
+
+
+
 
     @Override
     public boolean equals(Object o) {
