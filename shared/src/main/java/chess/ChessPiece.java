@@ -10,9 +10,6 @@ import java.util.Collection;
  */
 public class ChessPiece {
 
-    public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
-    }
-
     /**
      * The various different chess piece options
      */
@@ -25,18 +22,27 @@ public class ChessPiece {
         PAWN
     }
 
+    PieceType type;
+    ChessGame.TeamColor color;
+    ChessPosition position;
+
+    public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
+        this.type = type;
+        this.color = pieceColor;
+    }
+
     /**
      * @return Which team this chess piece belongs to
      */
     public ChessGame.TeamColor getTeamColor() {
-        throw new RuntimeException("Not implemented");
+        return color;
     }
 
     /**
      * @return which type of chess piece this piece is
      */
     public PieceType getPieceType() {
-        throw new RuntimeException("Not implemented");
+        return type;
     }
 
     /**
