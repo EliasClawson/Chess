@@ -49,8 +49,37 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+        ChessPiece selectedPiece = gameBoard.getPiece(startPosition);
+        if (selectedPiece == null) {
+            return null;
+        }
+        return selectedPiece.pieceMoves(gameBoard, startPosition);
     }
+
+    // Helper function to check if moving would cause check on your king
+    private boolean isMoveSafe(ChessMove move) {
+        // Original pieces
+        ChessPiece movingPiece = gameBoard.getPiece(move.getStartPosition());
+        ChessPiece capturedPiece = gameBoard.getPiece(move.getEndPosition());
+
+        // Simulate the move (Undo this in a few lines)
+        gameBoard.removePiece(move.getStartPosition());
+        gameBoard.addPiece(move.getEndPosition(), movingPiece);
+
+        // Check if the move puts the king in check
+        boolean isSafe = !isInCheck(teamTurn);
+
+        // Revert the move
+        gameBoard.removePiece(move.getEndPosition());
+        gameBoard.addPiece(move.getStartPosition(), movingPiece);
+        if (capturedPiece != null) {
+            gameBoard.addPiece(move.getEndPosition(), capturedPiece);
+        }
+
+        return isSafe;
+    }
+
+
 
     /**
      * Makes a move in a chess game

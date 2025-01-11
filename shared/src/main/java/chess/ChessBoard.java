@@ -25,7 +25,12 @@ public class ChessBoard {
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
         board[position.getRow() - 1][position.getColumn() - 1] = piece; // Add the piece on the board
-        piece.position = position;                                      // Set the piece's position
+    }
+
+    // Helper function to remove a piece, primarily for moving
+    public void removePiece(ChessPosition position) {
+        board[position.getRow() - 1][position.getColumn() - 1] = null;
+
     }
 
     /**
