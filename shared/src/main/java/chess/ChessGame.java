@@ -61,7 +61,7 @@ public class ChessGame {
         }
         Collection<ChessMove> possibleMoves = selectedPiece.pieceMoves(gameBoard, startPosition);
         System.out.println("Checking if " + selectedPiece.getPieceType() + " at " + startPosition.getRow() + "," + startPosition.getColumn() + " can move");
-        System.out.println("King is at " + getKing(selectedPiece.getTeamColor()).getRow() + ", " + getKing(selectedPiece.getTeamColor()).getColumn());
+        System.out.println(selectedPiece.getTeamColor() + " King is at " + getKing(selectedPiece.getTeamColor()).getRow() + ", " + getKing(selectedPiece.getTeamColor()).getColumn());
         possibleMoves = possibleMoves.stream() // Run through each possible move and check for check
                 .filter(this::isMoveSafe)
                 .collect(Collectors.toList());
@@ -90,7 +90,7 @@ public class ChessGame {
             gameBoard.addPiece(move.getEndPosition(), capturedPiece);
         }
 
-        System.out.println("Checking move: " + move + " with piece: " + movingPiece.getPieceType() + " - Is safe: " + isSafe);
+        //System.out.println("Checking move: " + move + " with piece: " + movingPiece.getPieceType() + " - Is safe: " + isSafe);
 
         return isSafe;
     }
@@ -147,7 +147,7 @@ public class ChessGame {
             Collection<ChessMove> pieceMoves = piece.pieceMoves(gameBoard, position);
             for (ChessMove move : pieceMoves) {
                 if (move.getEndPosition().equals(kingPosition)) {
-                    System.out.println(teamColor + " in check at " + position.getRow() + "," + position.getColumn() + " with " + piece.getTeamColor() + " " + piece.getPieceType());
+                    // System.out.println(teamColor + " in check at " + position.getRow() + "," + position.getColumn() + " with " + piece.getTeamColor() + " " + piece.getPieceType());
                     return true;
                 }
             }
@@ -174,18 +174,25 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        if(!isInCheck(teamColor)){ return false}
+        System.out.println("Checking Checkmate for " + teamColor);
+        if(!isInCheck(teamColor)){ return false; }
 
         for (ChessPosition position : gameBoard.getAllPositions()) {
             ChessPiece piece = gameBoard.getPiece(position);
-            if (piece == null || piece.getTeamColor() == teamColor) { continue; } // Skip if space empty or friendly
+            if (piece == null || piece.getTeamColor() != teamColor) { continue; } // Skip if space empty or friendly
 
-            Collection<ChessMove> validMoves = validMoves(position);
-            if( *HERE* ) {
-                return false;
+            Collection<ChessMove> validMoves = validMoves(position); // Get all moves of this piece
+
+            // Check if any move removes the check
+            for (ChessMove move : validMoves) {
+                if (isMoveSafe(move)) {
+                    System.out.println(teamColor + " can still move: " + gameBoard.getPiece(move.getStartPosition()).getPieceType());
+                    return false; // Found a move that removes the check
+                }
             }
         }
-        return !isInStalemate(teamColor);
+        System.out.println(teamColor + " is in Checkmate...");
+        return true;
     }
 
     /**
@@ -196,11 +203,17 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
+        System.out.println("Checking Stalemate for " + teamColor);
+        if(isInCheck(teamColor)) {return false;}
         for (ChessPosition position : gameBoard.getAllPositions()) {
             ChessPiece piece = gameBoard.getPiece(position);
-            if (piece == null || piece.getTeamColor() == teamColor) { continue; } // Skip if space empty or friendly
+            if (piece == null || piece.getTeamColor() != teamColor) { continue; } // Skip if space empty or friendly
 
-            if(!piece.pieceMoves(gameBoard, position).isEmpty()) {
+            if(!validMoves(position).isEmpty()) {
+                System.out.println(teamColor + " has moves:");
+                for (ChessMove move : validMoves(position)) {
+                    System.out.println(gameBoard.getPiece(position).getPieceType() + " at " + position.getRow() + "," + position.getColumn() + " can move to " + move.getEndPosition().getRow() + "," + move.getEndPosition().getColumn());
+                }
                 return false;
             }
         }
