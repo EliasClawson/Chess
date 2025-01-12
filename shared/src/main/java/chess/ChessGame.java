@@ -1,6 +1,8 @@
 package chess;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
+
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -53,7 +55,10 @@ public class ChessGame {
         if (selectedPiece == null) {
             return null;
         }
-        return selectedPiece.pieceMoves(gameBoard, startPosition);
+        Collection<ChessMove> possibleMoves = selectedPiece.pieceMoves(gameBoard, startPosition);
+        return possibleMoves.stream() // Run through each possible move and check for check
+                .filter(this::isMoveSafe)
+                .collect(Collectors.toList());
     }
 
     // Helper function to check if moving would cause check on your king
