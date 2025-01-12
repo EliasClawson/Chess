@@ -16,7 +16,11 @@ public class ChessGame {
     ChessBoard gameBoard;
 
     public ChessGame() {
+        gameBoard = new ChessBoard();
+        gameBoard.resetBoard(); // Setup for new game
 
+        // Set the starting turn, always white
+        teamTurn = TeamColor.WHITE;
     }
 
     /**
@@ -56,9 +60,14 @@ public class ChessGame {
             return null;
         }
         Collection<ChessMove> possibleMoves = selectedPiece.pieceMoves(gameBoard, startPosition);
-        return possibleMoves.stream() // Run through each possible move and check for check
+        System.out.println("Checking if " + selectedPiece.getPieceType() + " at " + startPosition.getRow() + "," + startPosition.getColumn() + " can move");
+        System.out.println("King is at " + getKing(selectedPiece.getTeamColor()).getRow() + ", " + getKing(selectedPiece.getTeamColor()).getColumn());
+        possibleMoves = possibleMoves.stream() // Run through each possible move and check for check
                 .filter(this::isMoveSafe)
                 .collect(Collectors.toList());
+        // System.out.println("Valid moves for " + selectedPiece.getPieceType() + " at " + startPosition + ": " + possibleMoves);
+        System.out.println("Valid moves for " + selectedPiece.getPieceType() + " at " + startPosition + ": " + possibleMoves.size());
+        return possibleMoves;
     }
 
     // Helper function to check if moving would cause check on your king
@@ -72,7 +81,7 @@ public class ChessGame {
         gameBoard.addPiece(move.getEndPosition(), movingPiece);
 
         // Check if the move puts the king in check
-        boolean isSafe = !isInCheck(teamTurn);
+        boolean isSafe = !isInCheck(movingPiece.getTeamColor());
 
         // Revert the move
         gameBoard.removePiece(move.getEndPosition());
@@ -80,6 +89,8 @@ public class ChessGame {
         if (capturedPiece != null) {
             gameBoard.addPiece(move.getEndPosition(), capturedPiece);
         }
+
+        System.out.println("Checking move: " + move + " with piece: " + movingPiece.getPieceType() + " - Is safe: " + isSafe);
 
         return isSafe;
     }
@@ -103,9 +114,36 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        ChessPosition kingPosition = getKing(teamColor);
+        if(kingPosition == null) { return false;} // Skip check if there's no king
+
+        for (ChessPosition position : gameBoard.getAllPositions()) {
+            ChessPiece piece = gameBoard.getPiece(position);
+            if (piece == null || piece.getTeamColor() == teamColor) { continue; } // Skip if space empty or friendly
+
+            Collection<ChessMove> pieceMoves = piece.pieceMoves(gameBoard, position);
+            for (ChessMove move : pieceMoves) {
+                if (move.getEndPosition().equals(kingPosition)) {
+                    System.out.println(teamColor + " in check at " + position.getRow() + "," + position.getColumn() + " with " + piece.getTeamColor() + " " + piece.getPieceType());
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
+
+    // Helper method to find the king for the team
+    private ChessPosition getKing(TeamColor teamColor) {
+        for (ChessPosition position : gameBoard.getAllPositions()) {
+            ChessPiece piece = gameBoard.getPiece(position);
+            if (piece != null && piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == teamColor) {
+                return position;
+            }
+        }
+        System.out.println(teamColor + " King not currently on board");
+        return null;
+    }
     /**
      * Determines if the given team is in checkmate
      *

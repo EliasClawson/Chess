@@ -272,7 +272,7 @@ public class ChessPiece {
     }
 
     private boolean inBounds(ChessPosition newSpot) {
-        System.out.println("Checking bounds for: (" + newSpot.getRow() + ", " + newSpot.getColumn() + ")");
+        // System.out.println("Checking bounds for: (" + newSpot.getRow() + ", " + newSpot.getColumn() + ")");
         return (newSpot.getRow() <= 8 && newSpot.getRow() >= 1 && newSpot.getColumn() >= 1 && newSpot.getColumn() <= 8);
     }
 

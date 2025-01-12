@@ -1,6 +1,8 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Objects;
 
 /**
@@ -30,7 +32,17 @@ public class ChessBoard {
     // Helper function to remove a piece, primarily for moving
     public void removePiece(ChessPosition position) {
         board[position.getRow() - 1][position.getColumn() - 1] = null;
+    }
 
+    // Helper function to allow for searching the board
+    public Collection<ChessPosition> getAllPositions() {
+        Collection<ChessPosition> positions = new ArrayList<>();
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                positions.add(new ChessPosition(row + 1, col + 1));
+            }
+        }
+        return positions;
     }
 
     /**
