@@ -320,7 +320,9 @@ public class ChessGame {
             Collection<ChessMove> pieceMoves = piece.pieceMoves(gameBoard, position);
             for (ChessMove move : pieceMoves) {
                 if (move.getEndPosition().equals(kingPosition)) {
-                    // System.out.println(teamColor + " in check at " + position.getRow() + "," + position.getColumn() + " with " + piece.getTeamColor() + " " + piece.getPieceType());
+                    // System.out.println(teamColor + " in check at "
+                    // + position.getRow() + "," + position.getColumn() + " with "
+                    // + piece.getTeamColor() + " " + piece.getPieceType());
                     return true;
                 }
             }

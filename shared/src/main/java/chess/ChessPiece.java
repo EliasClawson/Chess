@@ -285,7 +285,8 @@ public class ChessPiece {
 
     private void addPromotions(List<ChessMove> validMoves, ChessPosition from, ChessPosition to) {
         // Add promotion moves for all possible piece types
-        for (ChessPiece.PieceType promotionType : new ChessPiece.PieceType[]{ChessPiece.PieceType.QUEEN, ChessPiece.PieceType.ROOK, ChessPiece.PieceType.BISHOP, ChessPiece.PieceType.KNIGHT}) {
+        for (ChessPiece.PieceType promotionType : new ChessPiece.PieceType[]{ChessPiece.PieceType.QUEEN,
+                ChessPiece.PieceType.ROOK, ChessPiece.PieceType.BISHOP, ChessPiece.PieceType.KNIGHT}) {
             validMoves.add(new ChessMove(from, to, promotionType));
         }
     }
