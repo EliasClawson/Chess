@@ -25,9 +25,10 @@ public class ChessPiece {
         PAWN
     }
 
-    PieceType type;
-    ChessGame.TeamColor color;
-    // ChessPosition position;
+    private final PieceType type;
+    private final ChessGame.TeamColor color;
+    private Boolean passantable = false;
+    private Boolean noMoves = true;
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.type = type;
@@ -47,6 +48,14 @@ public class ChessPiece {
     public PieceType getPieceType() {
         return type;
     }
+
+    public Boolean getPassantable() { return passantable; }
+
+    public void setPassantable(Boolean passantable) { this.passantable = passantable; }
+
+    public Boolean getNoMoves() { return noMoves; }
+
+    public void setNoMoves(Boolean noMoves) { this.noMoves = noMoves; }
 
     /**
      * Calculates all the positions a chess piece can move to
