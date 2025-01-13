@@ -67,7 +67,9 @@ public class ChessGame {
             if (startPosition.getColumn() < 8) {
                 ChessPiece lookRight = gameBoard.getPiece(new ChessPosition(startPosition.getRow(), startPosition.getColumn() + 1));
                 System.out.println("Made it here, don't know more yet");
-                if (lookRight != null && lookRight.getPassantable() && lookRight.getTeamColor() != selectedPiece.getTeamColor() && startPosition.getColumn() < 8) {
+                if (lookRight != null && lookRight.getPassantable()
+                        && lookRight.getTeamColor() != selectedPiece.getTeamColor()
+                        && startPosition.getColumn() < 8) {
                     System.out.println("enpassant possible - Right: " + lookRight.getPieceType());
                     possibleMoves.add(new ChessMove(startPosition, new ChessPosition(
                             startPosition.getRow() + (selectedPiece.getTeamColor() == TeamColor.WHITE ? 1 : -1), // Move diagonally forward
@@ -77,7 +79,9 @@ public class ChessGame {
             }
             if (startPosition.getColumn() > 1) {
                 ChessPiece lookLeft = gameBoard.getPiece(new ChessPosition(startPosition.getRow(), startPosition.getColumn() - 1));
-                if (lookLeft != null && lookLeft.getPassantable() && lookLeft.getTeamColor() != selectedPiece.getTeamColor() && startPosition.getColumn() > 1) {
+                if (lookLeft != null
+                        && lookLeft.getPassantable() && lookLeft.getTeamColor() != selectedPiece.getTeamColor()
+                        && startPosition.getColumn() > 1) {
                     System.out.println("enpassant possible - Left: " + lookLeft.getPieceType());
                     possibleMoves.add(new ChessMove(startPosition, new ChessPosition(
                             startPosition.getRow() + (selectedPiece.getTeamColor() == TeamColor.WHITE ? 1 : -1), // Move diagonally forward
@@ -102,15 +106,21 @@ public class ChessGame {
 
 
 
-        System.out.println("Checking if " + selectedPiece.getPieceType() + " at " + startPosition.getRow() + "," + startPosition.getColumn() + " can move");
-        System.out.println(selectedPiece.getTeamColor() + " King is at " + getKing(selectedPiece.getTeamColor()).getRow() + ", " + getKing(selectedPiece.getTeamColor()).getColumn());
+        System.out.println("Checking if " + selectedPiece.getPieceType()
+                + " at " + startPosition.getRow() + "," + startPosition.getColumn() + " can move");
+        System.out.println(selectedPiece.getTeamColor()
+                + " King is at " + getKing(selectedPiece.getTeamColor()).getRow()
+                + ", " + getKing(selectedPiece.getTeamColor()).getColumn());
         possibleMoves = possibleMoves.stream() // Run through each possible move and check for check
                 .filter(this::isMoveSafe)
                 .collect(Collectors.toList());
         // System.out.println("Valid moves for " + selectedPiece.getPieceType() + " at " + startPosition + ": " + possibleMoves);
-        System.out.println("Valid moves for " + selectedPiece.getPieceType() + " at " + startPosition + ": " + possibleMoves.size());
+        System.out.println("Valid moves for " + selectedPiece.getPieceType() + " at "
+                + startPosition + ": " + possibleMoves.size());
         for (ChessMove move : possibleMoves) {
-            System.out.println(gameBoard.getPiece(move.getStartPosition()).getPieceType() + " at " + move.getStartPosition().getRow() + "," + move.getStartPosition().getColumn() + " can move to " + move.getEndPosition().getRow() + "," + move.getEndPosition().getColumn());
+            System.out.println(gameBoard.getPiece(move.getStartPosition()).getPieceType()
+                    + " at " + move.getStartPosition().getRow() + "," + move.getStartPosition().getColumn()
+                    + " can move to " + move.getEndPosition().getRow() + "," + move.getEndPosition().getColumn());
         }
         return possibleMoves;
     }
@@ -159,8 +169,10 @@ public class ChessGame {
 
         // Ensure the king doesn't pass through or land on attacked squares
         return !isInCheck(gameBoard.getPiece(kingSpot).getTeamColor()) &&
-                !isSquareUnderAttack(kingSpot.getRow(), kingSpot.getColumn() + 1, gameBoard.getPiece(kingSpot).getTeamColor()) &&
-                !isSquareUnderAttack(kingSpot.getRow(), kingSpot.getColumn() + 2, gameBoard.getPiece(kingSpot).getTeamColor());
+                !isSquareUnderAttack(kingSpot.getRow(), kingSpot.getColumn() + 1,
+                        gameBoard.getPiece(kingSpot).getTeamColor()) &&
+                !isSquareUnderAttack(kingSpot.getRow(), kingSpot.getColumn() + 2,
+                        gameBoard.getPiece(kingSpot).getTeamColor());
     }
 
     // Helper functions to determine if castling is possible
@@ -182,8 +194,10 @@ public class ChessGame {
 
         // Ensure the king doesn't pass through or land on attacked squares
         return !isInCheck(gameBoard.getPiece(kingSpot).getTeamColor()) &&
-                !isSquareUnderAttack(kingSpot.getRow(), kingSpot.getColumn() - 1, gameBoard.getPiece(kingSpot).getTeamColor()) &&
-                !isSquareUnderAttack(kingSpot.getRow(), kingSpot.getColumn() - 2, gameBoard.getPiece(kingSpot).getTeamColor());
+                !isSquareUnderAttack(kingSpot.getRow(), kingSpot.getColumn() - 1,
+                        gameBoard.getPiece(kingSpot).getTeamColor()) &&
+                !isSquareUnderAttack(kingSpot.getRow(), kingSpot.getColumn() - 2,
+                        gameBoard.getPiece(kingSpot).getTeamColor());
     }
 
     private boolean isSquareUnderAttack(int row, int col, TeamColor teamColor) {
@@ -242,7 +256,8 @@ public class ChessGame {
             // Right castling
             if (move.getEndPosition().getColumn() > move.getStartPosition().getColumn()) {
                 ChessPosition rookStart = new ChessPosition(move.getStartPosition().getRow(), 8);
-                ChessPosition rookEnd = new ChessPosition(move.getStartPosition().getRow(), move.getEndPosition().getColumn() - 1);
+                ChessPosition rookEnd = new ChessPosition(move.getStartPosition().getRow(),
+                        move.getEndPosition().getColumn() - 1);
                 ChessPiece rook = gameBoard.getPiece(rookStart);
                 gameBoard.removePiece(rookStart);
                 gameBoard.addPiece(rookEnd, rook);
@@ -250,14 +265,16 @@ public class ChessGame {
             // Left castling
             else {
                 ChessPosition rookStart = new ChessPosition(move.getStartPosition().getRow(), 1);
-                ChessPosition rookEnd = new ChessPosition(move.getStartPosition().getRow(), move.getEndPosition().getColumn() + 1);
+                ChessPosition rookEnd = new ChessPosition(move.getStartPosition().getRow(),
+                        move.getEndPosition().getColumn() + 1);
                 ChessPiece rook = gameBoard.getPiece(rookStart);
                 gameBoard.removePiece(rookStart);
                 gameBoard.addPiece(rookEnd, rook);
             }
         }
 
-        movingPiece = move.getPromotionPiece() == null ? movingPiece : new ChessPiece(movingPiece.getTeamColor(), move.getPromotionPiece());
+        movingPiece = move.getPromotionPiece() == null ? movingPiece : new ChessPiece(movingPiece.getTeamColor(),
+                move.getPromotionPiece());
 
         // Do the move
         gameBoard.removePiece(move.getStartPosition());
@@ -342,7 +359,8 @@ public class ChessGame {
             // Check if any move removes the check
             for (ChessMove move : validMoves) {
                 if (isMoveSafe(move)) {
-                    System.out.println(teamColor + " can still move: " + gameBoard.getPiece(move.getStartPosition()).getPieceType());
+                    System.out.println(teamColor + " can still move: " +
+                            gameBoard.getPiece(move.getStartPosition()).getPieceType());
                     return false; // Found a move that removes the check
                 }
             }
@@ -368,7 +386,9 @@ public class ChessGame {
             if(!validMoves(position).isEmpty()) {
                 System.out.println(teamColor + " has moves:");
                 for (ChessMove move : validMoves(position)) {
-                    System.out.println(gameBoard.getPiece(position).getPieceType() + " at " + position.getRow() + "," + position.getColumn() + " can move to " + move.getEndPosition().getRow() + "," + move.getEndPosition().getColumn());
+                    System.out.println(gameBoard.getPiece(position).getPieceType()
+                            + " at " + position.getRow() + "," + position.getColumn() + " can move to "
+                            + move.getEndPosition().getRow() + "," + move.getEndPosition().getColumn());
                 }
                 return false;
             }
