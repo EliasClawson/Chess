@@ -20,11 +20,13 @@ public class GameHandler implements HttpHandler {
         this.gameService = gameService;
     }
 
-    @Override
+    // Handles incoming HTTP requests for user-related operations
+    @Override // Makes sure I don't screw shit up
     public void handle(HttpExchange exchange) throws IOException {
         String path = exchange.getRequestURI().getPath();
         String method = exchange.getRequestMethod();
 
+        // Send the request to the appropriate handler
         if ("POST".equalsIgnoreCase(method)) {
             if (path.equals("/game")) {
                 handleCreateGame(exchange);
@@ -38,6 +40,7 @@ public class GameHandler implements HttpHandler {
         }
     }
 
+    // Create Game requested, respond to client
     private void handleCreateGame(HttpExchange exchange) throws IOException {
         String authToken = exchange.getRequestHeaders().getFirst("Authorization");
         String requestBody = new BufferedReader(new InputStreamReader(exchange.getRequestBody()))
@@ -52,6 +55,7 @@ public class GameHandler implements HttpHandler {
         }
     }
 
+    // Join Game requested, respond to client
     private void handleJoinGame(HttpExchange exchange) throws IOException {
         String authToken = exchange.getRequestHeaders().getFirst("Authorization");
         String requestBody = new BufferedReader(new InputStreamReader(exchange.getRequestBody()))
@@ -66,6 +70,7 @@ public class GameHandler implements HttpHandler {
         }
     }
 
+    // List Games requested, respond to client
     private void handleListGames(HttpExchange exchange) throws IOException {
         try {
             Map<Integer, GameData> games = gameService.listGames();
@@ -75,6 +80,7 @@ public class GameHandler implements HttpHandler {
         }
     }
 
+    // Helper function to send a response to client
     private void sendResponse(HttpExchange exchange, int statusCode, String response) throws IOException {
         exchange.getResponseHeaders().set("Content-Type", "application/json");
         exchange.sendResponseHeaders(statusCode, response.getBytes().length);
@@ -90,7 +96,7 @@ public class GameHandler implements HttpHandler {
     private static class CreateGameResponse {
         int gameID;
 
-        CreateGameResponse(int gameID) {
+        CreateGameResponse(int gameID) { // Constructor to make life easier
             this.gameID = gameID;
         }
     }

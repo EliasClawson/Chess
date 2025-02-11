@@ -18,11 +18,15 @@ public class UserHandler implements HttpHandler {
         this.userService = userService;
     }
 
-    @Override
+    // Handles incoming HTTP requests for user-related operations
+    @Override // This apparently helps me make sure I don't screw up function calls?
     public void handle(HttpExchange exchange) throws IOException {
+        // Get URL path
         String path = exchange.getRequestURI().getPath();
+        // Get HTTP method being used
         String method = exchange.getRequestMethod();
 
+        // Select how to handle the request
         if ("POST".equalsIgnoreCase(method)) {
             if (path.equals("/user")) { // Register
                 handleRegister(exchange);
@@ -32,10 +36,11 @@ public class UserHandler implements HttpHandler {
         } else if ("DELETE".equalsIgnoreCase(method) && path.equals("/session")) { // Logout
             handleLogout(exchange);
         } else {
-            sendResponse(exchange, 404, "Endpoint not found");
+            sendResponse(exchange, 404, "Endpoint not found"); // Uh oh
         }
     }
 
+    // Register has been requested, attempt to register
     private void handleRegister(HttpExchange exchange) throws IOException {
         String requestBody = new BufferedReader(new InputStreamReader(exchange.getRequestBody()))
                 .lines().collect(Collectors.joining("\n"));
@@ -49,6 +54,7 @@ public class UserHandler implements HttpHandler {
         }
     }
 
+    // Login has been requested, attempt to login
     private void handleLogin(HttpExchange exchange) throws IOException {
         String requestBody = new BufferedReader(new InputStreamReader(exchange.getRequestBody()))
                 .lines().collect(Collectors.joining("\n"));
@@ -62,6 +68,7 @@ public class UserHandler implements HttpHandler {
         }
     }
 
+    // Logout has been requested, attempt to logout
     private void handleLogout(HttpExchange exchange) throws IOException {
         String authToken = exchange.getRequestHeaders().getFirst("Authorization");
 
@@ -73,6 +80,7 @@ public class UserHandler implements HttpHandler {
         }
     }
 
+    // Helper function end a response to the client
     private void sendResponse(HttpExchange exchange, int statusCode, String response) throws IOException {
         exchange.getResponseHeaders().set("Content-Type", "application/json");
         exchange.sendResponseHeaders(statusCode, response.getBytes().length);
