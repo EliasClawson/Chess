@@ -17,14 +17,24 @@ public class UserHandler {
     public Object handleRegister(Request req, Response res) {
         try {
             RegisterRequest registerRequest = gson.fromJson(req.body(), RegisterRequest.class);
-            String authToken = userService.registerUser(registerRequest.username(), registerRequest.password(), registerRequest.email());
+            String authToken = userService.registerUser(
+                    registerRequest.username(),
+                    registerRequest.password(),
+                    registerRequest.email()
+            );
             res.status(200);
             return gson.toJson(new RegisterResponse(authToken, registerRequest.username()));
         } catch (Exception e) {
-            res.status(400);
-            return gson.toJson(new ErrorResponse("Error: " + e.getMessage()));
+            String errorMessage = e.getMessage();
+            if (errorMessage.contains("already taken")) {
+                res.status(403);
+            } else {
+                res.status(400);
+            }
+            return gson.toJson(new ErrorResponse("Error: " + errorMessage));
         }
     }
+
 
     public Object handleLogin(Request req, Response res) {
         try {
