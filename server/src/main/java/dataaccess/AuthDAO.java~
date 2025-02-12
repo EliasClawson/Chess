@@ -24,9 +24,4 @@ public class AuthDAO {
     public void deleteAuth(String token) {
         authTokens.remove(token);
     }
-
-    // Clear all auth tokens
-    public void clear() {
-        authTokens.clear();
-    }
 }

@@ -6,19 +6,14 @@ import java.util.Map;
 
 public class GameDAO {
     private final Map<Integer, GameData> games = new HashMap<>();
-    private int nextGameID = 1;
+    private int currentGameID = 0;
 
-    // Create a new game and return the ID
+    // Create a new game and return its gameID
     public int createGame(String gameName) {
-        int gameID = nextGameID++;
-        GameData game = new GameData(gameID, null, null, gameName, null); // No players yet
-        games.put(gameID, game);
+        int gameID = ++currentGameID;
+        // Assuming a new game is created with no players yet and a new ChessGame instance.
+        games.put(gameID, new GameData(gameID, null, null, gameName, new chess.ChessGame()));
         return gameID;
-    }
-
-    // Retrieve a game by ID
-    public GameData getGame(int gameID) {
-        return games.get(gameID);
     }
 
     // List all games
@@ -26,8 +21,19 @@ public class GameDAO {
         return games;
     }
 
-    // Update a game (e.g., add players)
+    // Retrieve a game by gameID
+    public GameData getGame(int gameID) {
+        return games.get(gameID);
+    }
+
+    // Update an existing game
     public void updateGame(GameData game) {
         games.put(game.getGameID(), game);
+    }
+
+    // Clear all games and reset the gameID counter
+    public void clear() {
+        games.clear();
+        currentGameID = 0;
     }
 }

@@ -24,9 +24,4 @@ public class UserDAO {
     public boolean userExists(String username) {
         return users.containsKey(username);
     }
-
-    // Clear all users
-    public void clear() {
-        users.clear();
-    }
 }
