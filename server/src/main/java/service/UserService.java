@@ -16,12 +16,21 @@ public class UserService {
 
     // Register a new user
     public String registerUser(String username, String password, String email) {
+        // Validate inputs: if any field is null or empty, it's a bad request.
+        if (username == null || username.trim().isEmpty() ||
+                password == null || password.trim().isEmpty() ||
+                email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("Bad request: Missing fields.");
+        }
+
         if (userDAO.userExists(username)) {
             throw new IllegalArgumentException("Username already taken.");
         }
+
         userDAO.createUser(username, password, email);
         return authDAO.createAuth(username); // Return auth token
     }
+
 
     // Login user
     public String loginUser(String username, String password) {
