@@ -1,10 +1,10 @@
-import chess.*;
-import server.Server;
+package server;
 
 public class Main {
     public static void main(String[] args) {
-        // Start the server
-        Server server = new Server(); // Creates a new server, defined by Server.java
-        server.run(8080);  // Run on port 8080
+        Server server = new Server();
+        int port = 8080; // Start the server on port 8080 as required
+        System.out.println("Starting server on port " + port + "...");
+        server.run(port);
     }
 }

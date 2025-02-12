@@ -1,45 +1,50 @@
 package server;
 
-import com.sun.net.httpserver.HttpServer;
+import spark.Spark;
 import service.UserService;
 import service.GameService;
 import dataaccess.UserDAO;
 import dataaccess.GameDAO;
 import dataaccess.AuthDAO;
-import java.net.InetSocketAddress;
-import java.io.IOException;
 
 public class Server {
-    private HttpServer server;
+    public int run(int desiredPort) {
+        // Set the port for the server
+        Spark.port(desiredPort);
 
-    public void run(int port) {
-        try {
-            server = HttpServer.create(new InetSocketAddress(port), 0);
+        // Serve static files from "web" (ensure this matches your resource folder)
+        Spark.staticFiles.location("web");
 
-            // Initialize DAOs
-            UserDAO userDAO = new UserDAO();
-            GameDAO gameDAO = new GameDAO();
-            AuthDAO authDAO = new AuthDAO();
+        // Initialize DAOs
+        UserDAO userDAO = new UserDAO();
+        GameDAO gameDAO = new GameDAO();
+        AuthDAO authDAO = new AuthDAO();
 
-            // Creates an instance of UserService to handle user requests
-            UserService userService = new UserService(userDAO, authDAO);
-            // Creates an instance of gameService to handle game requests
-            GameService gameService = new GameService(gameDAO, authDAO);
+        // Initialize service classes
+        UserService userService = new UserService(userDAO, authDAO);
+        GameService gameService = new GameService(gameDAO, authDAO);
 
-            // Register endpoints with userService and gameService, and pass in userService/gameService
-            server.createContext("/user", new UserHandler(userService));
-            server.createContext("/session", new UserHandler(userService)); // login/logout
-            server.createContext("/game", new GameHandler(gameService));
-            server.createContext("/game/join", new GameHandler(gameService));
-            // Debugger created to catch other requests that I don't understand
-            server.createContext("/", new DebugHandler());
+        // Register Endpoints
 
-            server.setExecutor(null);
-            server.start();
+        // Clear database endpoint
+        Spark.delete("/db", (req, res) -> new ClearHandler().handleRequest(req, res));
 
-            System.out.println("♕ 240 Chess Server started on port " + port);
-        } catch (IOException e) {
-            System.err.println("Error settup up server and endpoints: \n" + e.getMessage() + "\n");
-        }
+        // User endpoints
+        Spark.post("/user", (req, res) -> new UserHandler(userService).handleRegister(req, res));
+        Spark.post("/session", (req, res) -> new UserHandler(userService).handleLogin(req, res));
+        Spark.delete("/session", (req, res) -> new UserHandler(userService).handleLogout(req, res));
+
+        // Game endpoints
+        Spark.get("/game", (req, res) -> new GameHandler(gameService).handleListGames(req, res));
+        Spark.post("/game", (req, res) -> new GameHandler(gameService).handleCreateGame(req, res));
+        Spark.put("/game", (req, res) -> new GameHandler(gameService).handleJoinGame(req, res));
+
+        // Wait until the server is initialized
+        Spark.awaitInitialization();
+        return Spark.port();
+    }
+
+    public void stop() {
+        Spark.stop();
     }
 }
