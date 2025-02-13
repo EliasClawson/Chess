@@ -59,10 +59,18 @@ public class GameHandler {
         try {
             String authToken = req.headers("Authorization");
             JoinGameRequest joinGameRequest = gson.fromJson(req.body(), JoinGameRequest.class);
-            // Convert the string "WHITE" or "BLACK" to a boolean value.
-            // For example, assume white if the string equals "WHITE" (ignoring case).
-            boolean joinAsWhite = joinGameRequest.playerColor().equalsIgnoreCase("WHITE");
+
+            // Validate the team color
+            String color = joinGameRequest.playerColor();
+            if (color == null || color.trim().isEmpty() ||
+                    (!color.equalsIgnoreCase("WHITE") && !color.equalsIgnoreCase("BLACK"))) {
+                throw new IllegalArgumentException("Invalid team color.");
+            }
+
+            // Convert to boolean: true if WHITE, false if BLACK
+            boolean joinAsWhite = color.equalsIgnoreCase("WHITE");
             gameService.joinGame(authToken, joinGameRequest.gameID(), joinAsWhite);
+
             res.status(200);
             return gson.toJson(new Object()); // returns "{}"
         } catch (Exception e) {
@@ -70,5 +78,6 @@ public class GameHandler {
             return gson.toJson(new ErrorResponse("Error: " + e.getMessage()));
         }
     }
+
 
 }
