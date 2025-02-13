@@ -22,7 +22,7 @@ public class GameService {
         // Validate auth token
         AuthData auth = authDAO.getAuth(authToken);
         if (auth == null) {
-            throw new IllegalArgumentException("Invalid auth token.");
+            throw new IllegalArgumentException("Invalid auth token."); // Bad. No.
         }
         // Create game in the DAO and return its ID
         return gameDAO.createGame(gameName);
@@ -33,7 +33,7 @@ public class GameService {
         // Validate auth token
         AuthData auth = authDAO.getAuth(authToken);
         if (auth == null) {
-            throw new IllegalArgumentException("Invalid auth token.");
+            throw new IllegalArgumentException("Invalid auth token."); // Bad. No.
         }
         // Get the map of games and convert it to a list
         Map<Integer, GameData> gamesMap = gameDAO.listGames();
@@ -76,6 +76,6 @@ public class GameService {
             );
         }
 
-        gameDAO.updateGame(game);
+        gameDAO.updateGame(game); // Update the game
     }
 }

@@ -20,7 +20,7 @@ public class UserService {
         if (username == null || username.trim().isEmpty() ||
                 password == null || password.trim().isEmpty() ||
                 email == null || email.trim().isEmpty()) {
-            throw new IllegalArgumentException("Bad request: Missing fields."); // If missed a field, stop
+            throw new IllegalArgumentException("Bad request: Missing fields.");
         }
 
         if (userDAO.userExists(username)) {

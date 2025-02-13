@@ -74,10 +74,17 @@ public class GameHandler {
             res.status(200);
             return gson.toJson(new Object()); // returns "{}"
         } catch (Exception e) {
-            res.status(400);
-            return gson.toJson(new ErrorResponse("Error: " + e.getMessage()));
+            String errorMessage = e.getMessage();
+            // If the error message indicates an invalid auth token, use 401.
+            if (errorMessage != null && errorMessage.contains("Invalid auth token")) {
+                res.status(401);
+            } else {
+                res.status(400);
+            }
+            return gson.toJson(new ErrorResponse("Error: " + errorMessage));
         }
     }
+
 
 
 }
