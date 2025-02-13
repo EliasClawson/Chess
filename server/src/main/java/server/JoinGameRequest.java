@@ -1,3 +1,3 @@
 package server;
 
-public record JoinGameRequest(Boolean playerColor, int gameID) { }
+public record JoinGameRequest(String playerColor, int gameID) { }
