@@ -75,15 +75,18 @@ public class GameHandler {
             return gson.toJson(new Object()); // returns "{}"
         } catch (Exception e) {
             String errorMessage = e.getMessage();
-            // If the error message indicates an invalid auth token, use 401.
+            // Check for specific error cases to set the proper status code.
             if (errorMessage != null && errorMessage.contains("Invalid auth token")) {
                 res.status(401);
+            } else if (errorMessage != null && errorMessage.contains("slot already taken")) {
+                res.status(403);
             } else {
                 res.status(400);
             }
             return gson.toJson(new ErrorResponse("Error: " + errorMessage));
         }
     }
+
 
 
 
