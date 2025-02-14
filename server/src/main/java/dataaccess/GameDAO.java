@@ -12,7 +12,8 @@ public class GameDAO {
     // Create a new game and return its gameID
     public int createGame(String gameName) {
         // Generate a new gameID (just plus one for now, could be more complex...?)
-        int gameID = currentGameID + 1;
+        currentGameID++;
+        int gameID = currentGameID;
         // Create a new game with empty players
         games.put(gameID, new GameData(gameID, null, null, gameName, new chess.ChessGame()));
         return gameID;
