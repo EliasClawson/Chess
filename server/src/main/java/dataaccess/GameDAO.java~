@@ -5,20 +5,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class GameDAO {
-    // Map of games and their gameIDs
     private final Map<Integer, GameData> games = new HashMap<>();
     private int currentGameID = 0;
 
     // Create a new game and return its gameID
     public int createGame(String gameName) {
-        // Generate a new gameID (just plus one for now, could be more complex...?)
-        int gameID = currentGameID + 1;
-        // Create a new game with empty players
+        int gameID = ++currentGameID;
+        // Assuming a new game is created with no players yet and a new ChessGame instance.
         games.put(gameID, new GameData(gameID, null, null, gameName, new chess.ChessGame()));
         return gameID;
     }
 
-    // List all current games
+    // List all games
     public Map<Integer, GameData> listGames() {
         return games;
     }
@@ -33,7 +31,7 @@ public class GameDAO {
         games.put(game.getGameID(), game);
     }
 
-    // Clear all games and reset the gameID counter (Just for wiping the database)
+    // Clear all games and reset the gameID counter
     public void clear() {
         games.clear();
         currentGameID = 0;

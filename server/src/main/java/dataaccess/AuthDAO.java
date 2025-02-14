@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class AuthDAO {
+    // Map to store all auth tokens and their corresponding auth data
     private final Map<String, AuthData> authTokens = new HashMap<>();
 
     // Create a new auth token
@@ -25,7 +26,7 @@ public class AuthDAO {
         authTokens.remove(token);
     }
 
-    // Clear all auth tokens
+    // Clear all auth tokens (Just for wiping the database)
     public void clear() {
         authTokens.clear();
     }

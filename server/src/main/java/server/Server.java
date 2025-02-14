@@ -8,6 +8,8 @@ import dataaccess.UserDAO;
 import dataaccess.GameDAO;
 import dataaccess.AuthDAO;
 
+// This is the main class for the server. Main just runs this one, cause that makes sens.
+// It initializes the DAOs and services, and registers the endpoints for access
 public class Server {
     public int run(int desiredPort) {
         Spark.port(desiredPort);

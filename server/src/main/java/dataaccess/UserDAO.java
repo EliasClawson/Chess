@@ -10,7 +10,7 @@ public class UserDAO {
     // Create a new user
     public void createUser(String username, String password, String email) {
         if (users.containsKey(username)) {
-            throw new IllegalArgumentException("User already exists.");
+            throw new IllegalArgumentException("User already exists."); // Prevent duplicate usernames
         }
         users.put(username, new UserData(username, password, email));
     }

@@ -9,9 +9,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class GameHandler {
-    private final GameService gameService;
-    private final Gson gson = new Gson();
+    private final GameService gameService; // From the file GameService
+    private final Gson gson = new Gson(); // Converts JSON to Java objects (?)
 
+    // Constructor
     public GameHandler(GameService gameService) {
         this.gameService = gameService;
     }
@@ -86,8 +87,4 @@ public class GameHandler {
             return gson.toJson(new ErrorResponse("Error: " + errorMessage));
         }
     }
-
-
-
-
 }

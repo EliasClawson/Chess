@@ -1,4 +1,4 @@
-package server;
+import server.Server;
 
 public class Main {
     public static void main(String[] args) {
@@ -7,7 +7,7 @@ public class Main {
         System.out.println("Starting server on port " + port + "...");
         server.run(port);
 
-
+        // Print a message to let the user know the server is running
         System.out.println("♕ 240 Chess Server started on port " + port);
     }
 }
