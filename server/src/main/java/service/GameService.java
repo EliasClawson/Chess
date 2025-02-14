@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 
+// Service for handling game-related requests from users
 public class GameService {
     private final GameDAO gameDAO;
     private final AuthDAO authDAO;

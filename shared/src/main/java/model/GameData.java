@@ -1,9 +1,9 @@
 package model;
 
-import chess.ChessGame;  // Assuming this is provided
+import chess.ChessGame;
 
 public class GameData {
-    private int gameID;
+    private int gameID; // Why are these all yellow???
     private String whiteUsername;
     private String blackUsername;
     private String gameName;

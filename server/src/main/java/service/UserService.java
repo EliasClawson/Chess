@@ -2,9 +2,9 @@ package service;
 
 import dataaccess.AuthDAO;
 import dataaccess.UserDAO;
-import model.AuthData;
 import model.UserData;
 
+// Service for handling user-related requests from users
 public class UserService {
     private final UserDAO userDAO;
     private final AuthDAO authDAO;
@@ -19,12 +19,13 @@ public class UserService {
         // Validate inputs: if any field is null or empty, it's a bad request.
         if (username == null || username.trim().isEmpty() ||
                 password == null || password.trim().isEmpty() ||
-                email == null || email.trim().isEmpty()) {
+                email == null || email.trim().isEmpty())
+        {
             throw new IllegalArgumentException("Bad request: Missing fields."); // If missed a field, stop
         }
 
         if (userDAO.userExists(username)) {
-            throw new IllegalArgumentException("Username already taken.");
+            throw new IllegalArgumentException("Username already taken."); // If username taken, stop (bad)
         }
 
         userDAO.createUser(username, password, email);
@@ -44,7 +45,7 @@ public class UserService {
     // Logout user
     public void logoutUser(String authToken) {
         if (authDAO.getAuth(authToken) == null) {
-            throw new IllegalArgumentException("Invalid auth token.");
+            throw new IllegalArgumentException("Invalid auth token."); // You didn't say the magic word
         }
         authDAO.deleteAuth(authToken);
     }

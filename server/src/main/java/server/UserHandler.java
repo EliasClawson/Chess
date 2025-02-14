@@ -6,6 +6,7 @@ import spark.Request;
 import spark.Response;
 import service.UserService;
 
+// WORKING VERSION, DON't CHANGE (for now)
 public class UserHandler {
     private final UserService userService;
     private final Gson gson = new Gson();
@@ -53,7 +54,7 @@ public class UserHandler {
             String authToken = req.headers("Authorization");
             userService.logoutUser(authToken);
             res.status(200);
-            return gson.toJson(new Object()); // returns "{}"
+            return gson.toJson(new Object()); // returns empty Json "{}"
         } catch (Exception e) {
             res.status(401);
             return gson.toJson(new ErrorResponse("Error: " + e.getMessage()));
