@@ -38,4 +38,6 @@ public class GameData {
         System.out.println("getGame() called for game with ID: " + gameID);
         return game;
     }
+
+    // Setters (if needed)
 }
