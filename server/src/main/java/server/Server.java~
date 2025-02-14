@@ -16,14 +16,14 @@ public class Server {
         Spark.staticFiles.location("web");
 
         // Initialize DAOs
-        UserDAO userDAOThingy = new UserDAO();
-        GameDAO gameDAOThingy = new GameDAO();
-        AuthDAO authDAOThingy = new AuthDAO();
+        UserDAO userDAO_Thingy = new UserDAO();
+        GameDAO gameDAO_Thingy = new GameDAO();
+        AuthDAO authDAO_Thingy = new AuthDAO();
 
         // Initialize services
-        UserService userService = new UserService(userDAOThingy, authDAOThingy);
-        GameService gameService = new GameService(gameDAOThingy, authDAOThingy);
-        ClearService clearService = new ClearService(userDAOThingy, gameDAOThingy, authDAOThingy);
+        UserService userService = new UserService(userDAO_Thingy, authDAO_Thingy);
+        GameService gameService = new GameService(gameDAO_Thingy, authDAO_Thingy);
+        ClearService clearService = new ClearService(userDAO_Thingy, gameDAO_Thingy, authDAO_Thingy);
 
         // Register Endpoints
         Spark.delete("/db", (req, res) -> new ClearHandler(clearService).handleRequest(req, res));

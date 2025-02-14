@@ -27,7 +27,7 @@ public class UserData {
         return email;
     }
 
-    // Setters (if needed)
+    // Setters
     public void setUsername(String username) {
         System.out.println("Setting username to: " + username);
         this.username = username;

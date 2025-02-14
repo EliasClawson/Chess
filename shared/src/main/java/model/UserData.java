@@ -26,20 +26,4 @@ public class UserData {
         System.out.println("Getting email: " + email);
         return email;
     }
-
-    // Setters
-    public void setUsername(String username) {
-        System.out.println("Setting username to: " + username);
-        this.username = username;
-    }
-
-    public void setPassword(String password) {
-        System.out.println("Setting password");
-        this.password = password;
-    }
-
-    public void setEmail(String email) {
-        System.out.println("Setting email to: " + email);
-        this.email = email;
-    }
 }
