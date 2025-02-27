@@ -16,6 +16,7 @@ public class UserHandler {
     }
 
     public Object handleRegister(Request req, Response res) {
+        System.out.println("Register request body: " + req.body() + "\n");
         try {
             RegisterRequest registerRequest = gson.fromJson(req.body(), RegisterRequest.class);
             String authToken = userService.registerUser(
@@ -38,16 +39,22 @@ public class UserHandler {
 
 
     public Object handleLogin(Request req, Response res) {
+        System.out.println("Login request body: " + req.body() + "\n");
         try {
+            System.out.println("Login request body: " + req.body());
             LoginRequest loginRequest = gson.fromJson(req.body(), LoginRequest.class);
+            System.out.println("Deserialized loginRequest: username=" + loginRequest.username()
+                    + ", password=" + loginRequest.password());
             String authToken = userService.loginUser(loginRequest.username(), loginRequest.password());
             res.status(200);
             return gson.toJson(new LoginResponse(authToken, loginRequest.username()));
         } catch (Exception e) {
+            e.printStackTrace();
             res.status(401);
             return gson.toJson(new ErrorResponse("Error: " + e.getMessage()));
         }
     }
+
 
     public Object handleLogout(Request req, Response res) {
         try {

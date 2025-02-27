@@ -15,7 +15,7 @@ public class UserServiceTest {
     private UserService userService;
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws Exception{
         // Create fresh instances for isolation between tests.
         userDAO = new UserDAO();
         authDAO = new AuthDAO();
@@ -25,7 +25,7 @@ public class UserServiceTest {
     // ----- registerUser Tests -----
 
     @Test
-    public void testRegisterUserPositive() {
+    public void testRegisterUserPositive() throws Exception{
         String username = "testUser";
         String password = "testPass";
         String email = "test@example.com";
@@ -38,7 +38,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testRegisterUserMissingFieldNegative() {
+    public void testRegisterUserMissingFieldNegative() throws Exception{
         String username = "testUser";
         String password = null; // Missing password
         String email = "test@example.com";
@@ -50,7 +50,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testRegisterUserDuplicateNegative() {
+    public void testRegisterUserDuplicateNegative() throws Exception{
         String username = "testUser";
         String password = "testPass";
         String email = "test@example.com";
@@ -68,7 +68,7 @@ public class UserServiceTest {
     // ----- loginUser Tests -----
 
     @Test
-    public void testLoginUserPositive() {
+    public void testLoginUserPositive() throws Exception{
         String username = "testUser";
         String password = "testPass";
         String email = "test@example.com";
@@ -82,7 +82,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testLoginUserNegativeInvalidPassword() {
+    public void testLoginUserNegativeInvalidPassword() throws Exception{
         String username = "testUser";
         String password = "testPass";
         String email = "test@example.com";
@@ -98,7 +98,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testLoginUserNegativeNonExistentUser() {
+    public void testLoginUserNegativeNonExistentUser() throws Exception{
         // Attempt login with a username that doesn't exist.
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             userService.loginUser("nonExistent", "anyPass");
@@ -109,7 +109,7 @@ public class UserServiceTest {
     // ----- logoutUser Tests -----
 
     @Test
-    public void testLogoutUserPositive() {
+    public void testLogoutUserPositive() throws Exception {
         String username = "testUser";
         String password = "testPass";
         String email = "test@example.com";
@@ -127,7 +127,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testLogoutUserNegativeInvalidToken() {
+    public void testLogoutUserNegativeInvalidToken() throws Exception{
         // Attempt to logout with an invalid token.
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             userService.logoutUser("invalidToken");

@@ -22,7 +22,7 @@ public class GameServiceTest {
     private final String invalidAuthToken = "invalidToken";
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws Exception{
         // Create new instances for each test for isolation.
         gameDAO = new GameDAO();
         authDAO = new AuthDAO();
@@ -35,7 +35,7 @@ public class GameServiceTest {
     // ----- Tests for createGame -----
 
     @Test
-    public void testCreateGamePositive() {
+    public void testCreateGamePositive() throws Exception{
         String gameName = "Test Game";
         int gameID = gameService.createGame(validAuthToken, gameName);
         // Check that the game is created in the DAO.
@@ -45,7 +45,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void testCreateGameInvalidAuthNegative() {
+    public void testCreateGameInvalidAuthNegative() throws Exception{
         String gameName = "Test Game";
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             gameService.createGame(invalidAuthToken, gameName);
@@ -56,7 +56,7 @@ public class GameServiceTest {
     // ----- Tests for listGames -----
 
     @Test
-    public void testListGamesPositive() {
+    public void testListGamesPositive() throws Exception{
         // Create two games.
         gameService.createGame(validAuthToken, "Game 1");
         gameService.createGame(validAuthToken, "Game 2");
@@ -66,7 +66,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void testListGamesInvalidAuthNegative() {
+    public void testListGamesInvalidAuthNegative() throws Exception{
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             gameService.listGames(invalidAuthToken);
         });
@@ -76,7 +76,7 @@ public class GameServiceTest {
     // ----- Tests for joinGame -----
 
     @Test
-    public void testJoinGamePositiveWhite() {
+    public void testJoinGamePositiveWhite() throws Exception{
         String gameName = "Join Game White";
         int gameID = gameService.createGame(validAuthToken, gameName);
 
@@ -90,7 +90,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void testJoinGamePositiveBlack() {
+    public void testJoinGamePositiveBlack() throws Exception{
         String gameName = "Join Game Black";
         int gameID = gameService.createGame(validAuthToken, gameName);
 
@@ -104,7 +104,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void testJoinGameInvalidAuthNegative() {
+    public void testJoinGameInvalidAuthNegative() throws Exception{
         String gameName = "Join Game Invalid Auth";
         int gameID = gameService.createGame(validAuthToken, gameName);
 
@@ -115,7 +115,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void testJoinGameGameNotFoundNegative() {
+    public void testJoinGameGameNotFoundNegative() throws Exception{
         // Create a valid auth token for a second user.
         String secondAuthToken = authDAO.createAuth("secondUser");
 
@@ -127,7 +127,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void testJoinGameSlotAlreadyTakenNegativeWhite() {
+    public void testJoinGameSlotAlreadyTakenNegativeWhite() throws Exception{
         String gameName = "Join Game Slot Taken White";
         int gameID = gameService.createGame(validAuthToken, gameName);
 
@@ -144,7 +144,7 @@ public class GameServiceTest {
     }
 
     @Test
-    public void testJoinGameSlotAlreadyTakenNegativeBlack() {
+    public void testJoinGameSlotAlreadyTakenNegativeBlack() throws Exception{
         String gameName = "Join Game Slot Taken Black";
         int gameID = gameService.createGame(validAuthToken, gameName);
 
