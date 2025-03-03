@@ -19,7 +19,7 @@ public class UserServiceTest {
         authDAO = new AuthDAO();
         // Clear the user table to ensure no leftover data interferes with tests.
         userDAO.clear();
-        // Optionally clear auth if needed:
+        // Optionally, if needed, clear auth as well:
         // authDAO.clear();
         userService = new UserService(userDAO, authDAO);
     }
@@ -27,7 +27,7 @@ public class UserServiceTest {
     @Test
     @DisplayName("Register User - Positive")
     public void testRegisterUserPositive() throws Exception {
-        // Use a unique username each time.
+        // Use a unique username.
         String username = "testUser_" + System.currentTimeMillis();
         String password = "testPassword";
         String email = "test@example.com";
@@ -39,8 +39,7 @@ public class UserServiceTest {
         assertNotNull(user, "User should exist in database");
         assertEquals(username, user.getUsername(), "Usernames should match");
         assertEquals(email, user.getEmail(), "Emails should match");
-
-        // The stored password should be hashed and not equal to the clear text.
+        // Check that the stored password is hashed.
         assertNotEquals(password, user.getPassword(), "Stored password should not be clear text");
         assertTrue(user.getPassword().startsWith("$2a$") || user.getPassword().startsWith("$2b$"),
                 "Password should be hashed using BCrypt");
@@ -48,7 +47,7 @@ public class UserServiceTest {
 
     @Test
     @DisplayName("Register User - Negative (Missing Fields)")
-    public void testRegisterUserMissingFields() {
+    public void testRegisterUserMissingFields() throws Exception {
         Exception ex = assertThrows(IllegalArgumentException.class, () -> {
             userService.registerUser("user", "", "email@example.com");
         });
@@ -57,8 +56,7 @@ public class UserServiceTest {
 
     @Test
     @DisplayName("Register User - Negative (Duplicate Username)")
-    public void testRegisterUserDuplicate() {
-        // Use a unique username.
+    public void testRegisterUserDuplicate() throws Exception {
         String username = "duplicateUser_" + System.currentTimeMillis();
         String password = "password";
         String email = "email@example.com";
@@ -75,7 +73,7 @@ public class UserServiceTest {
 
     @Test
     @DisplayName("Login User - Positive")
-    public void testLoginUserPositive() {
+    public void testLoginUserPositive() throws Exception {
         String username = "loginUser_" + System.currentTimeMillis();
         String password = "loginPass";
         String email = "login@example.com";
@@ -87,7 +85,7 @@ public class UserServiceTest {
 
     @Test
     @DisplayName("Login User - Negative (Invalid Password)")
-    public void testLoginUserInvalidPassword() {
+    public void testLoginUserInvalidPassword() throws Exception {
         String username = "loginUserInvalid_" + System.currentTimeMillis();
         String password = "correctPass";
         String email = "invalid@example.com";
@@ -101,7 +99,7 @@ public class UserServiceTest {
 
     @Test
     @DisplayName("Login User - Negative (Non-existent User)")
-    public void testLoginUserNonExistent() {
+    public void testLoginUserNonExistent() throws Exception {
         Exception ex = assertThrows(IllegalArgumentException.class, () -> {
             userService.loginUser("nonexistentUser", "anyPassword");
         });
@@ -110,9 +108,28 @@ public class UserServiceTest {
 
     @Test
     @DisplayName("Logout User - Negative (Invalid Auth Token)")
-    public void testLogoutUserInvalid() {
+    public void testLogoutUserInvalid() throws Exception {
         Exception ex = assertThrows(IllegalArgumentException.class, () -> {
             userService.logoutUser("invalidToken");
+        });
+        assertEquals("Invalid auth token.", ex.getMessage());
+    }
+
+    @Test
+    @DisplayName("Logout User - Positive")
+    public void testLogoutUserPositive() throws Exception {
+        String username = "logoutUser_" + System.currentTimeMillis();
+        String password = "logoutPass";
+        String email = "logout@example.com";
+        // Register and login the user.
+        userService.registerUser(username, password, email);
+        String loginToken = userService.loginUser(username, password);
+        assertNotNull(loginToken, "Login should return a valid auth token");
+        // Logout should succeed.
+        assertDoesNotThrow(() -> userService.logoutUser(loginToken));
+        // A subsequent logout attempt with the same token should fail.
+        Exception ex = assertThrows(IllegalArgumentException.class, () -> {
+            userService.logoutUser(loginToken);
         });
         assertEquals("Invalid auth token.", ex.getMessage());
     }
