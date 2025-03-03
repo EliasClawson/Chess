@@ -2,7 +2,6 @@ package dataaccess;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import chess.ChessGame;
 import model.GameData;
 import org.junit.jupiter.api.*;
 
