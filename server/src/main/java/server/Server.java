@@ -12,26 +12,30 @@ import dataaccess.DataAccessException;
 
 public class Server {
     public int run(int desiredPort) {
-        // Stop Spark if it is already running to ensure we start fresh.
+        // Stop Spark if it is already running
         Spark.stop();
-        // Wait a moment for Spark to fully shut down before reconfiguring.
+        // Wait a moment for Spark to fully shut down before reconfiguring - breaks otherwise
         try {
             Thread.sleep(500);
         } catch (InterruptedException e) {
-            // Ignore interruption during shutdown wait.
+            // Do nothing I guess?
         }
 
-        // Now we can safely configure Spark.
+        // Configure Spark
         Spark.port(desiredPort);
         Spark.staticFiles.location("web");
 
+        // Steps from chatGPT
         // 1) Create the database if it doesn't exist.
         try {
             DatabaseManager.createDatabase();
         } catch (DataAccessException e) {
             e.printStackTrace();
-            // Possibly exit if the DB can't be created.
+            // Something went terribly wrong
         }
+
+        // 1.5) Clear all data
+        // ACTUALLY DONT! THIS BROKE THE TESTS (Persistence tests)
 
         // 2) Create the necessary tables if they don't exist.
         try (var conn = DatabaseManager.getConnection()) {
@@ -70,6 +74,7 @@ public class Server {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            // Something went terribly wrong
         }
 
         // 3) Initialize DAOs.
@@ -82,6 +87,7 @@ public class Server {
         GameService gameService = new GameService(gameDAOThingy, authDAOThingy);
         ClearService clearService = new ClearService(userDAOThingy, gameDAOThingy, authDAOThingy);
 
+        // This one also broke the persistence test so it's bad
         // 4.5) Clear the database to remove any leftover data.
         //try {
         //    clearService.clear();
@@ -90,7 +96,7 @@ public class Server {
         //    // Handle error if needed.
         //}
 
-        // 5) Register endpoints.
+        // 5) Register endpoints. (Hey spark the endpoints are here!)
         Spark.delete("/db", (req, res) -> new ClearHandler(clearService).handleRequest(req, res));
         Spark.post("/user", (req, res) -> new UserHandler(userService).handleRegister(req, res));
         Spark.post("/session", (req, res) -> new UserHandler(userService).handleLogin(req, res));
@@ -100,11 +106,12 @@ public class Server {
         Spark.put("/game", (req, res) -> new GameHandler(gameService).handleJoinGame(req, res));
 
         Spark.awaitInitialization();
-        System.out.println("Server started on port " + Spark.port());
+        System.out.println("Server started on port " + Spark.port()); // Server is definitely running...
         return Spark.port();
     }
 
     public void stop() {
+        // Stop the server?
         Spark.stop();
     }
 }

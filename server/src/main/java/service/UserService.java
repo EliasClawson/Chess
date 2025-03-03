@@ -32,6 +32,7 @@ public class UserService {
             userDAO.createUser(username, password, email);
             return authDAO.createAuth(username);
         } catch (DataAccessException e) {
+            // Something went wrong
             throw new RuntimeException("Error registering user: " + e.getMessage(), e);
         }
     }

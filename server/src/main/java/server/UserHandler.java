@@ -50,6 +50,7 @@ public class UserHandler {
             return gson.toJson(new LoginResponse(authToken, loginRequest.username()));
         } catch (Exception e) {
             e.printStackTrace();
+            // Something went terribly wrong
             res.status(401);
             return gson.toJson(new ErrorResponse("Error: " + e.getMessage()));
         }
@@ -64,6 +65,7 @@ public class UserHandler {
             return gson.toJson(new Object()); // returns empty Json "{}"
         } catch (Exception e) {
             res.status(401);
+            // Something went terribly wrong
             return gson.toJson(new ErrorResponse("Error: " + e.getMessage()));
         }
     }
