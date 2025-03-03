@@ -6,11 +6,4 @@
       <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
     </content>
   </component>
-  <component name="PyNamespacePackagesService">
-    <option name="namespacePackageFolders">
-      <list>
-        <option value="$MODULE_DIR$/src/test/java/dataaccess" />
-      </list>
-    </option>
-  </component>
 </module>
