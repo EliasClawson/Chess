@@ -6,6 +6,7 @@ import org.junit.jupiter.api.*;
 import dataaccess.GameDAO;
 import dataaccess.AuthDAO;
 import model.GameData;
+import chess.ChessGame;
 
 import java.util.List;
 
