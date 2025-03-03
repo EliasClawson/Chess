@@ -83,12 +83,12 @@ public class Server {
         ClearService clearService = new ClearService(userDAOThingy, gameDAOThingy, authDAOThingy);
 
         // 4.5) Clear the database to remove any leftover data.
-        try {
-            clearService.clear();
-        } catch (Exception e) {
-            e.printStackTrace();
-            // Handle error if needed.
-        }
+        //try {
+        //    clearService.clear();
+        //} catch (Exception e) {
+        //    e.printStackTrace();
+        //    // Handle error if needed.
+        //}
 
         // 5) Register endpoints.
         Spark.delete("/db", (req, res) -> new ClearHandler(clearService).handleRequest(req, res));
