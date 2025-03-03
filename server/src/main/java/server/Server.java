@@ -88,13 +88,7 @@ public class Server {
         ClearService clearService = new ClearService(userDAOThingy, gameDAOThingy, authDAOThingy);
 
         // This one also broke the persistence test so it's bad
-        // 4.5) Clear the database to remove any leftover data.
-        //try {
-        //    clearService.clear();
-        //} catch (Exception e) {
-        //    e.printStackTrace();
-        //    // Handle error if needed.
-        //}
+        // Had to erase this to pass the code quality test
 
         // 5) Register endpoints. (Hey spark the endpoints are here!)
         Spark.delete("/db", (req, res) -> new ClearHandler(clearService).handleRequest(req, res));
