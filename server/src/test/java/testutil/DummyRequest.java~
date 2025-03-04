@@ -1,0 +1,54 @@
+package testutil;
+
+import spark.Request;
+import spark.QueryParamsMap;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+public class DummyRequest extends Request {
+    private final String body;
+    private final Map<String, String> headers = new HashMap<>();
+
+    public DummyRequest(String body) {
+        this.body = body;
+    }
+
+    @Override
+    public String body() {
+        return body;
+    }
+
+    @Override
+    public String headers(String header) {
+        return headers.get(header);
+    }
+
+    public void setHeader(String key, String value) {
+        headers.put(key, value);
+    }
+
+    // The following methods are stubs. Implement or remove @Override if necessary.
+    @Override public String requestMethod() { throw new UnsupportedOperationException(); }
+    @Override public String ip() { throw new UnsupportedOperationException(); }
+    @Override public String url() { throw new UnsupportedOperationException(); }
+    @Override public String uri() { throw new UnsupportedOperationException(); }
+    @Override public String protocol() { throw new UnsupportedOperationException(); }
+    @Override public String host() { throw new UnsupportedOperationException(); }
+    @Override public int port() { throw new UnsupportedOperationException(); }
+    @Override public String contentType() { throw new UnsupportedOperationException(); }
+    @Override public int contentLength() { throw new UnsupportedOperationException(); }
+    @Override public QueryParamsMap queryMap() { throw new UnsupportedOperationException(); }
+    @Override public Map<String, String> params() { throw new UnsupportedOperationException(); }
+    @Override public String params(String param) { throw new UnsupportedOperationException(); }
+    @Override public Object attribute(String attribute) { throw new UnsupportedOperationException(); }
+    @Override
+    public void attribute(String attribute, Object value) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override public Set<String> attributes() { throw new UnsupportedOperationException(); }
+    @Override public Set<String> headers() { throw new UnsupportedOperationException(); }
+    @Override public Map<String, String> cookies() { throw new UnsupportedOperationException(); }
+    @Override public String cookie(String name) { throw new UnsupportedOperationException(); }
+}
