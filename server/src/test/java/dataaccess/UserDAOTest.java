@@ -76,4 +76,21 @@ public class UserDAOTest {
         assertNull(userDAO.getUser("user1"));
         assertNull(userDAO.getUser("user2"));
     }
+
+    @Test
+    @DisplayName("Test Get User Not Found")
+    public void testGetUserNotFound() throws Exception {
+        UserData user = userDAO.getUser("nonExistentUser");
+        assertNull(user, "Expected null for a non-existent user");
+    }
+
+    @Test
+    @DisplayName("Test Create User With Missing Fields")
+    public void testCreateUserMissingFields() throws Exception {
+        Exception exception = assertThrows(Exception.class, () -> {
+            userDAO.createUser("", "password", "email@example.com");
+        });
+        // Optionally, check the exception message if applicable.
+    }
+
 }

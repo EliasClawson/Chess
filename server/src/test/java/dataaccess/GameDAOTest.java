@@ -83,4 +83,21 @@ public class GameDAOTest {
         Map<Integer, GameData> gamesAfter = gameDAO.listGames();
         assertEquals(0, gamesAfter.size(), "All games should be cleared");
     }
+
+    @Test
+    @DisplayName("Test Get Game Not Found")
+    public void testGetGameNotFound() throws Exception {
+        GameData game = gameDAO.getGame(9999); // Assuming 9999 does not exist.
+        assertNull(game, "Expected null for a non-existent game ID");
+    }
+
+    @Test
+    @DisplayName("Test Update Non-Existent Game")
+    public void testUpdateNonExistentGame() throws Exception {
+        // Create a fake game with a non-existent ID.
+        GameData fakeGame = new GameData(9999, "nonExistent", null, "Fake Game", null);
+        Exception ex = assertThrows(Exception.class, () -> gameDAO.updateGame(fakeGame));
+        // Optionally, you can check the exception message if your implementation specifies one.
+    }
+
 }

@@ -8,6 +8,12 @@ public class UserDAO {
 
     // Create a new user in the database
     public void createUser(String username, String password, String email) throws DataAccessException {
+        if (username == null || username.trim().isEmpty() ||
+                password == null || password.trim().isEmpty() ||
+                email == null || email.trim().isEmpty()) {
+            throw new DataAccessException("Error creating user: Missing fields");
+        }
+
         String sql = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {

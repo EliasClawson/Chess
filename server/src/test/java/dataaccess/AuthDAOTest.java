@@ -59,4 +59,19 @@ public class AuthDAOTest {
         authDAO.clear();
         assertNull(authDAO.getAuth(token), "Auth tokens should be cleared");
     }
+
+    @Test
+    @DisplayName("Test Get Auth with Invalid Token")
+    public void testGetAuthInvalidToken() throws Exception {
+        AuthData authData = authDAO.getAuth("nonExistentToken");
+        assertNull(authData, "Expected null for non-existent token");
+    }
+
+    @Test
+    @DisplayName("Test Delete Non-Existent Auth Token")
+    public void testDeleteNonExistentAuth() throws Exception {
+        // Expect no exception when deleting a token that doesn't exist.
+        assertDoesNotThrow(() -> authDAO.deleteAuth("nonExistentToken"), "Deleting a non-existent token should not throw an exception");
+    }
+
 }
