@@ -74,4 +74,6 @@ public class AuthDAOTest {
         assertDoesNotThrow(() -> authDAO.deleteAuth("nonExistentToken"), "Deleting a non-existent token should not throw an exception");
     }
 
+
+
 }

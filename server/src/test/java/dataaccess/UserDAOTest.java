@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.*;
 import model.UserData;
 
+import java.sql.Connection;
+
 public class UserDAOTest {
 
     private UserDAO userDAO;
@@ -92,5 +94,24 @@ public class UserDAOTest {
         });
         // Optionally, check the exception message if applicable.
     }
+
+    @Test
+    @DisplayName("Test User Exists Method")
+    public void testUserExists() throws Exception {
+        // Before creating, userExists should return false.
+        assertFalse(userDAO.userExists("unknownUser"), "User should not exist initially");
+        // After creating a user, userExists should return true.
+        userDAO.createUser("newUser", "newPass", "new@example.com");
+        assertTrue(userDAO.userExists("newUser"), "User should exist after creation");
+    }
+
+    @Test
+    @DisplayName("Test Get Connection")
+    public void testGetConnection() throws Exception {
+        Connection conn = DatabaseManager.getConnection();
+        assertNotNull(conn, "DatabaseManager should return a valid connection");
+        conn.close();
+    }
+
 
 }

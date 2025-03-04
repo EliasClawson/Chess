@@ -2,6 +2,7 @@ package dataaccess;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import chess.ChessGame;
 import model.GameData;
 import org.junit.jupiter.api.*;
 
@@ -91,13 +92,17 @@ public class GameDAOTest {
         assertNull(game, "Expected null for a non-existent game ID");
     }
 
+
     @Test
     @DisplayName("Test Update Non-Existent Game")
     public void testUpdateNonExistentGame() throws Exception {
-        // Create a fake game with a non-existent ID.
-        GameData fakeGame = new GameData(9999, "nonExistent", null, "Fake Game", null);
-        Exception ex = assertThrows(Exception.class, () -> gameDAO.updateGame(fakeGame));
-        // Optionally, you can check the exception message if your implementation specifies one.
+        // Create a dummy GameData with a non-existent ID.
+        GameData fakeGame = new GameData(9999, "NonExistentUser", null, "Fake Game", new ChessGame());
+        Exception ex = assertThrows(DataAccessException.class, () -> {
+            gameDAO.updateGame(fakeGame);
+        });
+        assertTrue(ex.getMessage().contains("No game updated"), "Expected error message for updating non-existent game");
     }
+
 
 }
