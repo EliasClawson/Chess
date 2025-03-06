@@ -8,6 +8,6 @@ public class Main {
         server.run(port);
 
         // Print a message to let the user know the server is running
-        System.out.println("♕ 240 Chess Server started on port " + port);
+        System.out.println("♕ 240 Chess Server - LAB 5");
     }
 }

@@ -97,7 +97,7 @@ public class GameDAOTest {
     @DisplayName("Test Update Non-Existent Game")
     public void testUpdateNonExistentGame() throws Exception {
         // Create a dummy GameData with a non-existent ID.
-        GameData fakeGame = new GameData(9999, "NonExistentUser", null, "Fake Game", new  ChessGame());
+        GameData fakeGame = new GameData(9999, "NonExistentUser", null, "Fake Game", new ChessGame());
         Exception ex = assertThrows(DataAccessException.class, () -> {
             gameDAO.updateGame(fakeGame);
         });
