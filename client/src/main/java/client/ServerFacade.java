@@ -192,5 +192,79 @@ public class ServerFacade {
         }
     }
 
+    // Lists all games by sending a GET request to /game.
+    public List<GameInfo> listGames(String authToken) throws IOException {
+        String endpoint = baseUrl + "/game";
+        URL url = new URL(endpoint);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        try {
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Authorization", authToken);
 
+            int responseCode = connection.getResponseCode();
+            InputStream is = (responseCode >= 200 && responseCode < 300)
+                    ? connection.getInputStream()
+                    : connection.getErrorStream();
+
+            StringBuilder response = new StringBuilder();
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(is, "utf-8"))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    response.append(line.trim());
+                }
+            }
+
+            if (responseCode >= 200 && responseCode < 300) {
+                // Parse the response into a ListGamesResponse record.
+                Gson gson = new Gson();
+                ListGamesResponse listResp = gson.fromJson(response.toString(), ListGamesResponse.class);
+                return listResp.games();
+            } else {
+                throw new IOException("Server returned error: " + responseCode + " " + response.toString());
+            }
+        } finally {
+            connection.disconnect();
+        }
+    }
+
+    // Joins a game by sending a PUT request to /game.
+    public void joinGame(String authToken, int gameID, boolean joinAsWhite) throws IOException {
+        String endpoint = baseUrl + "/game";
+        URL url = new URL(endpoint);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        try {
+            connection.setRequestMethod("PUT");
+            connection.setDoOutput(true);
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setRequestProperty("Authorization", authToken);
+
+            // Build the JoinGameRequest. Notice that the record expects a string for playerColor.
+            String playerColor = joinAsWhite ? "WHITE" : "BLACK";
+            JoinGameRequest reqObj = new JoinGameRequest(playerColor, gameID);
+            Gson gson = new Gson();
+            String jsonInputString = gson.toJson(reqObj);
+
+            try (OutputStream os = connection.getOutputStream()) {
+                byte[] input = jsonInputString.getBytes("utf-8");
+                os.write(input, 0, input.length);
+            }
+
+            int responseCode = connection.getResponseCode();
+            // For joinGame, the server returns an empty JSON ("{}") on success.
+            if (responseCode < 200 || responseCode >= 300) {
+                InputStream is = connection.getErrorStream();
+                StringBuilder response = new StringBuilder();
+                try (BufferedReader br = new BufferedReader(new InputStreamReader(is, "utf-8"))) {
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        response.append(line.trim());
+                    }
+                }
+                throw new IOException("Server returned error: " + responseCode + " " + response.toString());
+            }
+            // If success, no further processing is needed.
+        } finally {
+            connection.disconnect();
+        }
+    }
 }
