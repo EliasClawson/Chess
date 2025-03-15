@@ -4,17 +4,24 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 import server.Server;
 import model.AuthData;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.IOException;
 import java.util.List;
 
 public class ServerFacadeTests {
 
     private static Server server;
     static ServerFacade facade;
+    private static int port; // store the server port
 
     @BeforeAll
     public static void init() {
         server = new Server();
-        int port = server.run(0);
+        port = server.run(0);
         System.out.println("Started test HTTP server on port " + port);
         facade = new ServerFacade(port);
     }
@@ -22,6 +29,19 @@ public class ServerFacadeTests {
     @AfterAll
     static void stopServer() {
         server.stop();
+    }
+
+    // Clear the database before each test by sending a DELETE request to /db.
+    @BeforeEach
+    public void clearDatabase() throws Exception {
+        URL url = new URL("http://localhost:" + port + "/db");
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("DELETE");
+        int responseCode = connection.getResponseCode();
+        connection.disconnect();
+        if (responseCode < 200 || responseCode >= 300) {
+            throw new IOException("Failed to clear database, response code: " + responseCode);
+        }
     }
 
     @Test
