@@ -121,6 +121,7 @@ public class ServerFacadeTests {
         // Register first user and create a game.
         AuthData auth1 = facade.register("playerA", "password", "playerA@example.com");
         int gameID = facade.createGame(auth1.getAuthToken(), "White Slot Test");
+        facade.joinGame(auth1.getAuthToken(), gameID, true);
         // Register second user and attempt to join as white (should fail).
         AuthData auth2 = facade.register("playerB", "password", "playerB@example.com");
         Exception ex = assertThrows(IllegalArgumentException.class, () -> {
