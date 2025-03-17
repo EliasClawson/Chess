@@ -49,6 +49,8 @@ public class ServerFacadeTests {
         assertTrue(true);
     }
 
+    // ------------------ Positive Tests ------------------
+
     @Test
     void registerTest() throws Exception {
         AuthData authData = facade.register("player1", "password", "p1@email.com");
@@ -100,67 +102,54 @@ public class ServerFacadeTests {
         assertDoesNotThrow(() -> facade.joinGame(authData.getAuthToken(), gameID, true));
     }
 
-    // Additional Tests for error conditions:
+    // ------------------ Negative Tests ------------------
 
+    // Login negative: wrong password
     @Test
-    void duplicateJoinTest() throws Exception {
-        // Register one user and create a game.
-        AuthData auth = facade.register("dupPlayer", "password", "dup@example.com");
-        int gameID = facade.createGame(auth.getAuthToken(), "Duplicate Join Test");
-        // Join as white.
-        facade.joinGame(auth.getAuthToken(), gameID, true);
-        // Attempt to join again (even as black) should throw an exception.
+    void loginWithWrongPasswordTest() throws Exception {
+        facade.register("wrongPassUser", "correctPassword", "wp@example.com");
         Exception ex = assertThrows(IllegalArgumentException.class, () -> {
-            facade.joinGame(auth.getAuthToken(), gameID, false);
+            facade.login("wrongPassUser", "incorrectPassword");
         });
-        assertTrue(ex.getMessage().contains("already joined"), "Expected duplicate join error.");
+        assertTrue(ex.getMessage().contains("Invalid"), "Expected invalid credentials error.");
     }
 
+    // Logout negative: invalid auth token
     @Test
-    void joinGameWhiteSlotTakenTest() throws Exception {
-        // Register first user and create a game.
-        AuthData auth1 = facade.register("playerA", "password", "playerA@example.com");
-        int gameID = facade.createGame(auth1.getAuthToken(), "White Slot Test");
-        facade.joinGame(auth1.getAuthToken(), gameID, true);
-        // Register second user and attempt to join as white (should fail).
-        AuthData auth2 = facade.register("playerB", "password", "playerB@example.com");
+    void logoutWithInvalidTokenTest() throws Exception {
         Exception ex = assertThrows(IllegalArgumentException.class, () -> {
-            facade.joinGame(auth2.getAuthToken(), gameID, true);
+            facade.logout("thisIsAnInvalidToken");
         });
-        assertTrue(ex.getMessage().contains("White slot already taken"), "Expected white slot taken error.");
+        assertTrue(ex.getMessage().contains("Invalid"), "Expected invalid token error on logout.");
     }
 
+    // Create game negative: invalid auth token
     @Test
-    void joinGameBlackSlotTakenTest() throws Exception {
-        // Register first user, create a game, and join as black.
-        AuthData auth1 = facade.register("playerC", "password", "playerC@example.com");
-        int gameID = facade.createGame(auth1.getAuthToken(), "Black Slot Test");
-        // First join as black with second user.
-        AuthData auth2 = facade.register("playerD", "password", "playerD@example.com");
-        facade.joinGame(auth2.getAuthToken(), gameID, false);
-        // Now register third user and attempt to join as black (should fail).
-        AuthData auth3 = facade.register("playerE", "password", "playerE@example.com");
+    void createGameWithInvalidTokenTest() throws Exception {
         Exception ex = assertThrows(IllegalArgumentException.class, () -> {
-            facade.joinGame(auth3.getAuthToken(), gameID, false);
+            facade.createGame("invalidToken", "Game With Invalid Token");
         });
-        assertTrue(ex.getMessage().contains("Black slot already taken"), "Expected black slot taken error.");
+        assertTrue(ex.getMessage().contains("Invalid"), "Expected invalid token error on create game.");
     }
 
+    // List games negative: invalid auth token
     @Test
-    void joinNonExistentGameTest() throws Exception {
-        AuthData auth = facade.register("nonexistentPlayer", "password", "nonexistent@example.com");
+    void listGamesWithInvalidTokenTest() throws Exception {
         Exception ex = assertThrows(IllegalArgumentException.class, () -> {
-            facade.joinGame(auth.getAuthToken(), 9999, true);
+            facade.listGames("invalidToken");
         });
-        assertTrue(ex.getMessage().contains("Game not found"), "Expected game not found error.");
+        assertTrue(ex.getMessage().contains("Invalid"), "Expected invalid token error on list games.");
     }
 
+    // Join game negative: invalid auth token
     @Test
-    void duplicateRegisterTest() throws Exception {
-        facade.register("duplicateUser", "password", "dup@example.com");
+    void joinGameWithInvalidTokenTest() throws Exception {
+        // Create a valid game first.
+        AuthData auth = facade.register("validUserForJoin", "password", "validjoin@example.com");
+        int gameID = facade.createGame(auth.getAuthToken(), "Game for Join Invalid Token Test");
         Exception ex = assertThrows(IllegalArgumentException.class, () -> {
-            facade.register("duplicateUser", "password", "dup@example.com");
+            facade.joinGame("invalidToken", gameID, true);
         });
-        assertTrue(ex.getMessage().contains("already taken"), "Expected duplicate registration error.");
+        assertTrue(ex.getMessage().contains("Invalid"), "Expected invalid token error on join game.");
     }
 }
