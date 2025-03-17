@@ -12,6 +12,14 @@ import java.util.List;
 import com.google.gson.Gson;
 import model.*;
 import server.*;
+import model.LoginRequest;
+import model.LoginResponse;
+import model.RegisterRequest;
+import model.RegisterResponse;
+import model.CreateGameRequest;
+import model.CreateGameResponse;
+import model.JoinGameRequest;
+import model.GameInfo;
 
 public class ServerFacade {
 
