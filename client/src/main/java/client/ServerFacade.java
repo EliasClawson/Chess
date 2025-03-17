@@ -10,7 +10,7 @@ import java.net.URL;
 import java.util.List;
 
 import com.google.gson.Gson;
-import model.AuthData;
+import model.*;
 import server.*;
 
 public class ServerFacade {

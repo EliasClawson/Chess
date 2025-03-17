@@ -1,7 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
-import model.GameData;
+import model.*;
 import spark.Request;
 import spark.Response;
 import service.GameService;
