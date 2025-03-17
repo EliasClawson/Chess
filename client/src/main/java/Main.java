@@ -13,8 +13,3 @@ public class Main {
         clientUI.run(); // This will start your client command loop.
     }
 }
-
-
-// TODO: Joining as white or black didn't work
-// TODO: Board appears wrong
-// What's supposed to happen when you join a game?
