@@ -75,7 +75,7 @@ public class GameService {
             // Check if the user is already in the game (either slot)
             if ((game.getWhiteUsername() != null && game.getWhiteUsername().equals(auth.getUsername()))
                     || (game.getBlackUsername() != null && game.getBlackUsername().equals(auth.getUsername()))) {
-                throw new IllegalArgumentException("User already joined this game.");
+                // throw new IllegalArgumentException("User already joined this game.");
             }
 
             if (joinAsWhite) {
