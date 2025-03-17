@@ -1,6 +1,4 @@
-package server;
-
-import model.GameInfo;
+package model;
 
 import java.util.List;
 

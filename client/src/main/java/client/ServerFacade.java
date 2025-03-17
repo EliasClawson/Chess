@@ -17,6 +17,7 @@ import model.RegisterRequest;
 import model.RegisterResponse;
 import model.CreateGameRequest;
 import model.CreateGameResponse;
+import model.ListGamesResponse;
 import model.JoinGameRequest;
 import model.GameInfo;
 
