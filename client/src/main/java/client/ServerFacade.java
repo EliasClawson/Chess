@@ -19,12 +19,12 @@ public class ServerFacade {
     private final Gson gson = new Gson();
 
     public ServerFacade(int port) {
-        this.baseUrl = "http://localhost:" + port;
+        this.baseUrl = "http://localhost:" + port; // Just sets up the base URL
     }
 
     // Helper method to check the HTTP response.
-    // If the response code is 4xx, we throw an IllegalArgumentException with the error message.
-    // If it's 5xx (or any non-2xx outside 4xx), we throw an IOException.
+    // If the response code is 40x, we throw an IllegalArgumentException with the error message.
+    // If it's 50x (or any non-20x outside 40x), we throw an IOException.
     private void checkResponse(HttpURLConnection connection) throws IOException {
         int responseCode = connection.getResponseCode();
         if (responseCode >= 200 && responseCode < 300) {
@@ -130,6 +130,31 @@ public class ServerFacade {
         }
     }
 
+    public List<GameInfo> listGames(String authToken) throws IOException {
+        String endpoint = baseUrl + "/game";
+        URL url = new URL(endpoint);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        try {
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Authorization", authToken);
+
+            checkResponse(connection);
+
+            InputStream is = connection.getInputStream();
+            StringBuilder response = new StringBuilder();
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(is, "utf-8"))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    response.append(line.trim());
+                }
+            }
+            ListGamesResponse listResp = gson.fromJson(response.toString(), ListGamesResponse.class);
+            return listResp.games();
+        } finally {
+            connection.disconnect();
+        }
+    }
+
     public int createGame(String authToken, String gameName) throws IOException {
         String endpoint = baseUrl + "/game";
         URL url = new URL(endpoint);
@@ -165,31 +190,6 @@ public class ServerFacade {
         }
     }
 
-    public List<GameInfo> listGames(String authToken) throws IOException {
-        String endpoint = baseUrl + "/game";
-        URL url = new URL(endpoint);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        try {
-            connection.setRequestMethod("GET");
-            connection.setRequestProperty("Authorization", authToken);
-
-            checkResponse(connection);
-
-            InputStream is = connection.getInputStream();
-            StringBuilder response = new StringBuilder();
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(is, "utf-8"))) {
-                String line;
-                while ((line = br.readLine()) != null) {
-                    response.append(line.trim());
-                }
-            }
-            ListGamesResponse listResp = gson.fromJson(response.toString(), ListGamesResponse.class);
-            return listResp.games();
-        } finally {
-            connection.disconnect();
-        }
-    }
-
     public void joinGame(String authToken, int gameID, boolean joinAsWhite) throws IOException {
         String endpoint = baseUrl + "/game";
         URL url = new URL(endpoint);
@@ -216,6 +216,7 @@ public class ServerFacade {
         }
     }
 
+    // This one is just for testing.
     public void clearDatabase() throws IOException {
         String endpoint = baseUrl + "/db";
         URL url = new URL(endpoint);
