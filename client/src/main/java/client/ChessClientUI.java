@@ -3,6 +3,7 @@ package client;
 import java.util.Scanner;
 import model.AuthData;
 import ui.ChessBoardRenderer;
+import java.io.IOException;
 
 public class ChessClientUI {
 
@@ -19,7 +20,7 @@ public class ChessClientUI {
         this.boardRenderer = new ChessBoardRenderer();
     }
 
-    public void run() {
+    public void run() throws IOException {
         // Main loop: switch between prelogin and postlogin
         while (true) {
             if (currentUser == null) {
@@ -30,7 +31,7 @@ public class ChessClientUI {
         }
     }
 
-    private void preloginMenu() {
+    private void preloginMenu() throws IOException {
         System.out.println("=== Prelogin Menu ===");
         System.out.println("1. Help");
         System.out.println("2. Register");
@@ -51,6 +52,10 @@ public class ChessClientUI {
             case "4":
                 System.out.println("Goodbye!");
                 System.exit(0);
+                break;
+            case "314":
+                System.out.println("Clearing database for testing...");
+                facade.clearDatabase();
                 break;
             default:
                 System.out.println("Invalid option.");
@@ -207,4 +212,5 @@ public class ChessClientUI {
         System.out.println(" - Play Game: Join a game as a player.");
         System.out.println(" - Observe Game: Watch a game (for now, just draw the board).");
     }
+
 }

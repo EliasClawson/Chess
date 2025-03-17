@@ -215,4 +215,18 @@ public class ServerFacade {
             connection.disconnect();
         }
     }
+
+    public void clearDatabase() throws IOException {
+        String endpoint = baseUrl + "/db";
+        URL url = new URL(endpoint);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        try {
+            connection.setRequestMethod("DELETE");
+            // No additional headers should be necessary for clearing the DB.
+            checkResponse(connection);
+            // If the response code is 2xx, the DB was cleared successfully.
+        } finally {
+            connection.disconnect();
+        }
+    }
 }
