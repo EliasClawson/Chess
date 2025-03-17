@@ -162,22 +162,34 @@ public class ChessClientUI {
         try {
             System.out.print("Enter the game number to join: ");
             int gameNum = Integer.parseInt(scanner.nextLine().trim());
-            // In a full implementation, you would map gameNum to a gameID from your last listGames call.
-            // For now, assume gameNum equals gameID.
-            System.out.print("Join as (WHITE/BLACK): ");
-            String color = scanner.nextLine().trim();
-            boolean joinAsWhite = color.equalsIgnoreCase("WHITE");
+
+            String color = "";
+            while (true) {
+                System.out.print("Join as (WHITE/BLACK): ");
+                color = scanner.nextLine().trim();
+                if (color.equalsIgnoreCase("WHITE") || color.equalsIgnoreCase("W")) {
+                    break;
+                } else if (color.equalsIgnoreCase("BLACK") || color.equalsIgnoreCase("B")) {
+                    break;
+                } else {
+                    System.out.println("Invalid input. Please enter either 'WHITE' or 'BLACK'.");
+                }
+            }
+
+            boolean joinAsWhite = color.equalsIgnoreCase("WHITE") || color.equalsIgnoreCase("W");
             facade.joinGame(currentUser.getAuthToken(), gameNum, joinAsWhite);
             System.out.println("Joined game " + gameNum + " as " + (joinAsWhite ? "WHITE" : "BLACK"));
+            boardRenderer.renderBoard(!joinAsWhite);
         } catch (Exception e) {
             System.out.println("Error joining game: " + e.getMessage());
         }
     }
 
+
     private void doObserveGame() {
         // For now, simply draw the chessboard (or print a message)
         System.out.println("Observing game - drawing initial chessboard:");
-        boardRenderer.renderBoard();
+        boardRenderer.renderBoard(false);
     }
 
     private void printPreloginHelp() {

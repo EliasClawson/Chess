@@ -99,4 +99,67 @@ public class ServerFacadeTests {
         // Attempt to join the game as white. Test passes if no exception is thrown.
         assertDoesNotThrow(() -> facade.joinGame(authData.getAuthToken(), gameID, true));
     }
+
+    // Additional Tests for error conditions:
+
+    @Test
+    void duplicateJoinTest() throws Exception {
+        // Register one user and create a game.
+        AuthData auth = facade.register("dupPlayer", "password", "dup@example.com");
+        int gameID = facade.createGame(auth.getAuthToken(), "Duplicate Join Test");
+        // Join as white.
+        facade.joinGame(auth.getAuthToken(), gameID, true);
+        // Attempt to join again (even as black) should throw an exception.
+        Exception ex = assertThrows(IllegalArgumentException.class, () -> {
+            facade.joinGame(auth.getAuthToken(), gameID, false);
+        });
+        assertTrue(ex.getMessage().contains("already joined"), "Expected duplicate join error.");
+    }
+
+    @Test
+    void joinGameWhiteSlotTakenTest() throws Exception {
+        // Register first user and create a game.
+        AuthData auth1 = facade.register("playerA", "password", "playerA@example.com");
+        int gameID = facade.createGame(auth1.getAuthToken(), "White Slot Test");
+        // Register second user and attempt to join as white (should fail).
+        AuthData auth2 = facade.register("playerB", "password", "playerB@example.com");
+        Exception ex = assertThrows(IllegalArgumentException.class, () -> {
+            facade.joinGame(auth2.getAuthToken(), gameID, true);
+        });
+        assertTrue(ex.getMessage().contains("White slot already taken"), "Expected white slot taken error.");
+    }
+
+    @Test
+    void joinGameBlackSlotTakenTest() throws Exception {
+        // Register first user, create a game, and join as black.
+        AuthData auth1 = facade.register("playerC", "password", "playerC@example.com");
+        int gameID = facade.createGame(auth1.getAuthToken(), "Black Slot Test");
+        // First join as black with second user.
+        AuthData auth2 = facade.register("playerD", "password", "playerD@example.com");
+        facade.joinGame(auth2.getAuthToken(), gameID, false);
+        // Now register third user and attempt to join as black (should fail).
+        AuthData auth3 = facade.register("playerE", "password", "playerE@example.com");
+        Exception ex = assertThrows(IllegalArgumentException.class, () -> {
+            facade.joinGame(auth3.getAuthToken(), gameID, false);
+        });
+        assertTrue(ex.getMessage().contains("Black slot already taken"), "Expected black slot taken error.");
+    }
+
+    @Test
+    void joinNonExistentGameTest() throws Exception {
+        AuthData auth = facade.register("nonexistentPlayer", "password", "nonexistent@example.com");
+        Exception ex = assertThrows(IllegalArgumentException.class, () -> {
+            facade.joinGame(auth.getAuthToken(), 9999, true);
+        });
+        assertTrue(ex.getMessage().contains("Game not found"), "Expected game not found error.");
+    }
+
+    @Test
+    void duplicateRegisterTest() throws Exception {
+        facade.register("duplicateUser", "password", "dup@example.com");
+        Exception ex = assertThrows(IllegalArgumentException.class, () -> {
+            facade.register("duplicateUser", "password", "dup@example.com");
+        });
+        assertTrue(ex.getMessage().contains("already taken"), "Expected duplicate registration error.");
+    }
 }

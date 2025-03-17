@@ -12,39 +12,17 @@ import java.util.List;
 import com.google.gson.Gson;
 import model.AuthData;
 import server.*;
+import model.AuthData;
 
 public class ServerFacade {
 
     private final String baseUrl;
-    private final Gson gson = new Gson();
 
     public ServerFacade(int port) {
         this.baseUrl = "http://localhost:" + port;
     }
 
-    // Helper method to check the HTTP response.
-    // If the response code is 4xx, we throw an IllegalArgumentException with the error message.
-    // If it's 5xx (or any non-2xx outside 4xx), we throw an IOException.
-    private void checkResponse(HttpURLConnection connection) throws IOException {
-        int responseCode = connection.getResponseCode();
-        if (responseCode >= 200 && responseCode < 300) {
-            return;
-        }
-        InputStream is = connection.getErrorStream();
-        StringBuilder errorResponse = new StringBuilder();
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(is, "utf-8"))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                errorResponse.append(line.trim());
-            }
-        }
-        if (responseCode >= 400 && responseCode < 500) {
-            throw new IllegalArgumentException(errorResponse.toString());
-        } else {
-            throw new IOException("Server returned error: " + responseCode + " " + errorResponse.toString());
-        }
-    }
-
+    //Registers a new user by sending an HTTP POST to the server's registration endpoint.
     public AuthData register(String username, String password, String email) throws IOException {
         String endpoint = baseUrl + "/user";
         URL url = new URL(endpoint);
@@ -54,18 +32,22 @@ public class ServerFacade {
             connection.setDoOutput(true);
             connection.setRequestProperty("Content-Type", "application/json");
 
+            // Create a RegisterRequest record
             RegisterRequest reqObj = new RegisterRequest(username, password, email);
+            Gson gson = new Gson();
             String jsonInputString = gson.toJson(reqObj);
 
+            // Write the JSON payload to the request body.
             try (OutputStream os = connection.getOutputStream()) {
-                byte[] input = jsonInputString.getBytes("utf-8");
+                byte[] input = jsonInputString.getBytes("utf-8"); // Must use UTF-8 encoding apparently
                 os.write(input, 0, input.length);
             }
 
-            checkResponse(connection);  // Throws appropriate exception if not successful
+            int responseCode = connection.getResponseCode();
+            InputStream is = (responseCode >= 200 && responseCode < 300)
+                    ? connection.getInputStream()
+                    : connection.getErrorStream();
 
-            // Read successful response.
-            InputStream is = connection.getInputStream();
             StringBuilder response = new StringBuilder();
             try (BufferedReader br = new BufferedReader(new InputStreamReader(is, "utf-8"))) {
                 String responseLine;
@@ -73,13 +55,21 @@ public class ServerFacade {
                     response.append(responseLine.trim());
                 }
             }
-            RegisterResponse regResp = gson.fromJson(response.toString(), RegisterResponse.class);
-            return new AuthData(regResp.authToken(), regResp.username());
+
+            if (responseCode >= 200 && responseCode < 300) {
+                // Parse the JSON response into a RegisterResponse record.
+                RegisterResponse regResp = gson.fromJson(response.toString(), RegisterResponse.class);
+                // Convert the RegisterResponse into your shared AuthData.
+                return new AuthData(regResp.authToken(), regResp.username());
+            } else {
+                throw new IOException("Server returned error: " + responseCode + " " + response.toString());
+            }
         } finally {
             connection.disconnect();
         }
     }
 
+    // Logs in the user by sending POST request to /session
     public AuthData login(String username, String password) throws IOException {
         String endpoint = baseUrl + "/session";
         URL url = new URL(endpoint);
@@ -90,17 +80,22 @@ public class ServerFacade {
             connection.setDoOutput(true);
             connection.setRequestProperty("Content-Type", "application/json");
 
+            // Create a LoginRequest using your server's record type.
             LoginRequest reqObj = new LoginRequest(username, password);
+            Gson gson = new Gson();
             String jsonInputString = gson.toJson(reqObj);
 
+            // Write the JSON payload to the request body.
             try (OutputStream os = connection.getOutputStream()) {
                 byte[] input = jsonInputString.getBytes("utf-8");
                 os.write(input, 0, input.length);
             }
 
-            checkResponse(connection);
+            int responseCode = connection.getResponseCode();
+            InputStream is = (responseCode >= 200 && responseCode < 300)
+                    ? connection.getInputStream()
+                    : connection.getErrorStream();
 
-            InputStream is = connection.getInputStream();
             StringBuilder response = new StringBuilder();
             try (BufferedReader br = new BufferedReader(new InputStreamReader(is, "utf-8"))) {
                 String responseLine;
@@ -108,28 +103,50 @@ public class ServerFacade {
                     response.append(responseLine.trim());
                 }
             }
-            LoginResponse loginResp = gson.fromJson(response.toString(), LoginResponse.class);
-            return new AuthData(loginResp.authToken(), loginResp.username());
+
+            if (responseCode >= 200 && responseCode < 300) {
+                // Parse the JSON response into a LoginResponse record.
+                LoginResponse loginResp = gson.fromJson(response.toString(), LoginResponse.class);
+                // Create and return an AuthData object using the data from loginResp.
+                return new AuthData(loginResp.authToken(), loginResp.username());
+            } else {
+                throw new IOException("Server returned error: " + responseCode + " " + response.toString());
+            }
         } finally {
             connection.disconnect();
         }
     }
 
+    // Logs out the user by sending DELETE request to /session
     public void logout(String authToken) throws IOException {
         String endpoint = baseUrl + "/session";
         URL url = new URL(endpoint);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         try {
             connection.setRequestMethod("DELETE");
+            // Set the Authorization header as expected by the server handler.
             connection.setRequestProperty("Authorization", authToken);
 
-            checkResponse(connection);
-            // Successful logout; nothing to return.
+            int responseCode = connection.getResponseCode();
+            if (responseCode < 200 || responseCode >= 300) {
+                // If there's an error, read the error stream and throw an exception.
+                InputStream is = connection.getErrorStream();
+                StringBuilder response = new StringBuilder();
+                try (BufferedReader br = new BufferedReader(new InputStreamReader(is, "utf-8"))) {
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        response.append(line.trim());
+                    }
+                }
+                throw new IOException("Server returned error: " + responseCode + " " + response.toString());
+            }
+            // Success: the server returns an empty JSON "{}" and a 200 status code.
         } finally {
             connection.disconnect();
         }
     }
 
+    // Creates a new game by sending a POST request to /game.
     public int createGame(String authToken, String gameName) throws IOException {
         String endpoint = baseUrl + "/game";
         URL url = new URL(endpoint);
@@ -140,7 +157,9 @@ public class ServerFacade {
             connection.setRequestProperty("Content-Type", "application/json");
             connection.setRequestProperty("Authorization", authToken);
 
+            // Create the request payload using CreateGameRequest.
             CreateGameRequest reqObj = new CreateGameRequest(gameName);
+            Gson gson = new Gson();
             String jsonInputString = gson.toJson(reqObj);
 
             try (OutputStream os = connection.getOutputStream()) {
@@ -148,9 +167,11 @@ public class ServerFacade {
                 os.write(input, 0, input.length);
             }
 
-            checkResponse(connection);
+            int responseCode = connection.getResponseCode();
+            InputStream is = (responseCode >= 200 && responseCode < 300)
+                    ? connection.getInputStream()
+                    : connection.getErrorStream();
 
-            InputStream is = connection.getInputStream();
             StringBuilder response = new StringBuilder();
             try (BufferedReader br = new BufferedReader(new InputStreamReader(is, "utf-8"))) {
                 String line;
@@ -158,13 +179,20 @@ public class ServerFacade {
                     response.append(line.trim());
                 }
             }
-            CreateGameResponse respObj = gson.fromJson(response.toString(), CreateGameResponse.class);
-            return respObj.gameID();
+
+            if (responseCode >= 200 && responseCode < 300) {
+                // Parse the response into a CreateGameResponse.
+                CreateGameResponse respObj = gson.fromJson(response.toString(), CreateGameResponse.class);
+                return respObj.gameID(); // assuming the record has a gameID() accessor
+            } else {
+                throw new IOException("Server returned error: " + responseCode + " " + response.toString());
+            }
         } finally {
             connection.disconnect();
         }
     }
 
+    // Lists all games by sending a GET request to /game.
     public List<GameInfo> listGames(String authToken) throws IOException {
         String endpoint = baseUrl + "/game";
         URL url = new URL(endpoint);
@@ -173,9 +201,11 @@ public class ServerFacade {
             connection.setRequestMethod("GET");
             connection.setRequestProperty("Authorization", authToken);
 
-            checkResponse(connection);
+            int responseCode = connection.getResponseCode();
+            InputStream is = (responseCode >= 200 && responseCode < 300)
+                    ? connection.getInputStream()
+                    : connection.getErrorStream();
 
-            InputStream is = connection.getInputStream();
             StringBuilder response = new StringBuilder();
             try (BufferedReader br = new BufferedReader(new InputStreamReader(is, "utf-8"))) {
                 String line;
@@ -183,13 +213,21 @@ public class ServerFacade {
                     response.append(line.trim());
                 }
             }
-            ListGamesResponse listResp = gson.fromJson(response.toString(), ListGamesResponse.class);
-            return listResp.games();
+
+            if (responseCode >= 200 && responseCode < 300) {
+                // Parse the response into a ListGamesResponse record.
+                Gson gson = new Gson();
+                ListGamesResponse listResp = gson.fromJson(response.toString(), ListGamesResponse.class);
+                return listResp.games();
+            } else {
+                throw new IOException("Server returned error: " + responseCode + " " + response.toString());
+            }
         } finally {
             connection.disconnect();
         }
     }
 
+    // Joins a game by sending a PUT request to /game.
     public void joinGame(String authToken, int gameID, boolean joinAsWhite) throws IOException {
         String endpoint = baseUrl + "/game";
         URL url = new URL(endpoint);
@@ -200,8 +238,10 @@ public class ServerFacade {
             connection.setRequestProperty("Content-Type", "application/json");
             connection.setRequestProperty("Authorization", authToken);
 
+            // Build the JoinGameRequest. Notice that the record expects a string for playerColor.
             String playerColor = joinAsWhite ? "WHITE" : "BLACK";
             JoinGameRequest reqObj = new JoinGameRequest(playerColor, gameID);
+            Gson gson = new Gson();
             String jsonInputString = gson.toJson(reqObj);
 
             try (OutputStream os = connection.getOutputStream()) {
@@ -209,8 +249,20 @@ public class ServerFacade {
                 os.write(input, 0, input.length);
             }
 
-            checkResponse(connection);
-            // Successful join returns an empty JSON; nothing further to do.
+            int responseCode = connection.getResponseCode();
+            // For joinGame, the server returns an empty JSON ("{}") on success.
+            if (responseCode < 200 || responseCode >= 300) {
+                InputStream is = connection.getErrorStream();
+                StringBuilder response = new StringBuilder();
+                try (BufferedReader br = new BufferedReader(new InputStreamReader(is, "utf-8"))) {
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        response.append(line.trim());
+                    }
+                }
+                throw new IOException("Server returned error: " + responseCode + " " + response.toString());
+            }
+            // If success, no further processing is needed.
         } finally {
             connection.disconnect();
         }
