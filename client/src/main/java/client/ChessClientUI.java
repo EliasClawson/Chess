@@ -1,9 +1,11 @@
 package client;
 
+import java.util.List;
 import java.util.Scanner;
 
 import com.google.gson.Gson;
 import model.AuthData;
+import model.GameInfo;
 import ui.ChessBoardRenderer;
 import client.ClientErrorResponse;
 import java.io.IOException;
@@ -16,6 +18,9 @@ public class ChessClientUI {
     private AuthData currentUser;
     // For drawing the board:
     private final ChessBoardRenderer boardRenderer;
+
+    private List<GameInfo> lastGames;
+
 
     public ChessClientUI(ServerFacade facade) {
         this.facade = facade;
@@ -145,7 +150,7 @@ public class ChessClientUI {
             System.out.print("Enter game name: ");
             String gameName = scanner.nextLine().trim();
             int gameID = facade.createGame(currentUser.getAuthToken(), gameName);
-            System.out.println("Game created with ID: " + gameID);
+            System.out.println("Game created with name: " + gameName);
         } catch (Exception e) {
             System.out.println(extractErrorMessage(e.getMessage()));
         }
@@ -153,12 +158,21 @@ public class ChessClientUI {
 
     private void doListGames() {
         try {
-            var games = facade.listGames(currentUser.getAuthToken());
+            lastGames = facade.listGames(currentUser.getAuthToken());
+            if (lastGames.isEmpty()) {
+                System.out.println("No games available.");
+                return;
+            }
             System.out.println("Available Games:");
-            // For now, just print them (you might want to number them)
             int i = 1;
-            for (Object game : games) {
-                System.out.println(i + ". " + game.toString());
+            for (GameInfo game : lastGames) {
+                // You can choose what information to show for each game.
+                // For example, game name and the players (if any).
+                System.out.println(i + ". " + game.gameName() + " (White: "
+                        + (game.whiteUsername() == null ? "None" : game.whiteUsername())
+                        + ", Black: "
+                        + (game.blackUsername() == null ? "None" : game.blackUsername())
+                        + ")");
                 i++;
             }
         } catch (Exception e) {
@@ -166,10 +180,31 @@ public class ChessClientUI {
         }
     }
 
+
     private void doJoinGame() {
         try {
-            System.out.print("Enter the game number to join: ");
-            int gameNum = Integer.parseInt(scanner.nextLine().trim());
+            lastGames = facade.listGames(currentUser.getAuthToken());
+            if (lastGames.isEmpty()) {
+                System.out.println("No games available.");
+                return;
+            }
+            int gameNum;
+            while (true) {
+                try {
+                    System.out.print("Enter the game number to join: ");
+                    gameNum = Integer.parseInt(scanner.nextLine().trim());
+                    if (gameNum < 1 || gameNum > lastGames.size()) {
+                        System.out.println("Invalid game number. Please enter a number between 1 and " + lastGames.size());
+                        continue;
+                    }
+                    break;
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid input. Please enter a valid integer.");
+                }
+            }
+
+            // Look up the gameID from the list based on the display number.
+            int gameID = lastGames.get(gameNum - 1).gameID();
 
             String color = "";
             while (true) {
@@ -185,7 +220,7 @@ public class ChessClientUI {
             }
 
             boolean joinAsWhite = color.equalsIgnoreCase("WHITE") || color.equalsIgnoreCase("W");
-            facade.joinGame(currentUser.getAuthToken(), gameNum, joinAsWhite);
+            facade.joinGame(currentUser.getAuthToken(), gameID, joinAsWhite);
             System.out.println("Joined game " + gameNum + " as " + (joinAsWhite ? "WHITE" : "BLACK"));
             boardRenderer.renderBoard(!joinAsWhite);
         } catch (Exception e) {
@@ -194,12 +229,26 @@ public class ChessClientUI {
     }
 
 
+
     private void doObserveGame() {
+        try {
+            lastGames = facade.listGames(currentUser.getAuthToken());
+            if (lastGames.isEmpty()) {
+                System.out.println("No games available.");
+                return;
+            }
+        } catch (Exception e) {
+            System.out.println(extractErrorMessage(e.getMessage()));
+        }
         int gameNum;
         while (true) {
             try {
                 System.out.print("Enter the game number to observe: ");
                 gameNum = Integer.parseInt(scanner.nextLine().trim());
+                if (gameNum < 1 || gameNum > lastGames.size()) {
+                    System.out.println("Invalid game number. Please enter a number between 1 and " + lastGames.size());
+                    continue;
+                }
                 break; // parsing succeeded
             } catch (NumberFormatException e) {
                 System.out.println("Invalid input. Please enter a valid integer.");
