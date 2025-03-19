@@ -195,8 +195,16 @@ public class ChessClientUI {
 
 
     private void doObserveGame() {
-        System.out.print("Enter the game number to observe: ");
-        int gameNum = Integer.parseInt(scanner.nextLine().trim());
+        int gameNum;
+        while (true) {
+            try {
+                System.out.print("Enter the game number to observe: ");
+                gameNum = Integer.parseInt(scanner.nextLine().trim());
+                break; // parsing succeeded
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a valid integer.");
+            }
+        }
 
         // For now, simply draw the chessboard (or print a message)
         System.out.println("Observing game - drawing initial chessboard:");
