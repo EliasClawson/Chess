@@ -1,7 +1,10 @@
 package client;
 
 import java.util.Scanner;
+
+import com.google.gson.Gson;
 import model.AuthData;
+import server.ErrorResponse;
 import ui.ChessBoardRenderer;
 import java.io.IOException;
 
@@ -109,7 +112,7 @@ public class ChessClientUI {
             System.out.println("Registered successfully as " + auth.getUsername());
             currentUser = auth;
         } catch (Exception e) {
-            System.out.println("Error registering: " + e.getMessage());
+            System.out.println(extractErrorMessage(e.getMessage()));
         }
     }
 
@@ -123,7 +126,7 @@ public class ChessClientUI {
             System.out.println("Logged in successfully as " + auth.getUsername());
             currentUser = auth;
         } catch (Exception e) {
-            System.out.println("Error logging in: " + e.getMessage());
+            System.out.println(extractErrorMessage(e.getMessage()));
         }
     }
 
@@ -133,7 +136,7 @@ public class ChessClientUI {
             System.out.println("Logged out successfully.");
             currentUser = null;
         } catch (Exception e) {
-            System.out.println("Error logging out: " + e.getMessage());
+            System.out.println(extractErrorMessage(e.getMessage()));
         }
     }
 
@@ -144,7 +147,7 @@ public class ChessClientUI {
             int gameID = facade.createGame(currentUser.getAuthToken(), gameName);
             System.out.println("Game created with ID: " + gameID);
         } catch (Exception e) {
-            System.out.println("Error creating game: " + e.getMessage());
+            System.out.println(extractErrorMessage(e.getMessage()));
         }
     }
 
@@ -159,7 +162,7 @@ public class ChessClientUI {
                 i++;
             }
         } catch (Exception e) {
-            System.out.println("Error listing games: " + e.getMessage());
+            System.out.println(extractErrorMessage(e.getMessage()));
         }
     }
 
@@ -186,12 +189,15 @@ public class ChessClientUI {
             System.out.println("Joined game " + gameNum + " as " + (joinAsWhite ? "WHITE" : "BLACK"));
             boardRenderer.renderBoard(!joinAsWhite);
         } catch (Exception e) {
-            System.out.println("Error joining game: " + e.getMessage());
+            System.out.println(extractErrorMessage(e.getMessage()));
         }
     }
 
 
     private void doObserveGame() {
+        System.out.print("Enter the game number to observe: ");
+        int gameNum = Integer.parseInt(scanner.nextLine().trim());
+
         // For now, simply draw the chessboard (or print a message)
         System.out.println("Observing game - drawing initial chessboard:");
         boardRenderer.renderBoard(false);
@@ -211,6 +217,17 @@ public class ChessClientUI {
         System.out.println(" - List Games: Display a list of current games.");
         System.out.println(" - Play Game: Join a game as a player.");
         System.out.println(" - Observe Game: Watch a game (for now, just draw the board).");
+    }
+
+    private String extractErrorMessage(String jsonMessage) {
+        try {
+            Gson gson = new Gson();
+            ErrorResponse errorResponse = gson.fromJson(jsonMessage, ErrorResponse.class);
+            return errorResponse.message;
+        } catch (Exception e) {
+            // If parsing fails, just return the original message.
+            return jsonMessage;
+        }
     }
 
 }

@@ -12,11 +12,11 @@ public class AuthData {
 
     // Getters to get stuff to be got
     public String getAuthToken() {
-        System.out.println("Auth Token: " + authToken);
+        //System.out.println("Auth Token: " + authToken);
         return authToken;
     }
     public String getUsername() {
-        System.out.println("Username: " + username);
+        //System.out.println("Username: " + username);
         return username;
     }
 }
