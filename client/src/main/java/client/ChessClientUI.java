@@ -4,8 +4,8 @@ import java.util.Scanner;
 
 import com.google.gson.Gson;
 import model.AuthData;
-import server.ErrorResponse;
 import ui.ChessBoardRenderer;
+import client.ClientErrorResponse;
 import java.io.IOException;
 
 public class ChessClientUI {
@@ -222,7 +222,7 @@ public class ChessClientUI {
     private String extractErrorMessage(String jsonMessage) {
         try {
             Gson gson = new Gson();
-            ErrorResponse errorResponse = gson.fromJson(jsonMessage, ErrorResponse.class);
+            ClientErrorResponse errorResponse = gson.fromJson(jsonMessage, ClientErrorResponse.class);
             return errorResponse.message;
         } catch (Exception e) {
             // If parsing fails, just return the original message.
