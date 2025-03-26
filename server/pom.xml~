@@ -2,7 +2,7 @@
 <project>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>client</artifactId>
+    <artifactId>server</artifactId>
     <version>1.0.0</version>
 
     <parent>
@@ -14,7 +14,12 @@
     <packaging>jar</packaging>
 
     <build>
-        <finalName>client</finalName>
+        <finalName>server</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -53,6 +58,21 @@
     </build>
 
     <dependencies>
+        <!-- MySQL Connector/J -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.30</version>
+            <!-- The default scope is compile -->
+        </dependency>
+
+        <!-- BCrypt for password hashing -->
+        <dependency>
+            <groupId>org.mindrot</groupId>
+            <artifactId>jbcrypt</artifactId>
+            <version>0.4</version>
+            <!-- The default scope is compile -->
+        </dependency>
         <dependency>
             <groupId>edu.byu.cs240</groupId>
             <artifactId>shared</artifactId>
@@ -60,15 +80,45 @@
         </dependency>
         <dependency>
             <groupId>edu.byu.cs240</groupId>
-            <artifactId>server</artifactId>
-            <scope>test</scope>
+            <artifactId>shared</artifactId>
             <version>1.0.0</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.30</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.36</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sparkjava</groupId>
+            <artifactId>spark-core</artifactId>
+            <version>2.9.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mindrot</groupId>
+            <artifactId>jbcrypt</artifactId>
+            <version>0.4</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish.tyrus.bundles</groupId>
             <artifactId>tyrus-standalone-client</artifactId>
             <version>1.15</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>edu.byu.cs240</groupId>
+            <artifactId>passoff-dependencies</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${pom.basedir}/lib/passoff-dependencies.jar</systemPath>
         </dependency>
     </dependencies>
+
 
 </project>
