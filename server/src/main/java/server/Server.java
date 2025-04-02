@@ -10,6 +10,13 @@ import dataaccess.AuthDAO;
 import dataaccess.DatabaseManager;
 import dataaccess.DataAccessException;
 
+//import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.websocket.server.WebSocketHandler;
+import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory;
+import server.websocket.GameWebSocket;
+
+
 public class Server {
     public int run(int desiredPort) {
         // Stop Spark if it is already running
@@ -100,6 +107,35 @@ public class Server {
         Spark.put("/game", (req, res) -> new GameHandler(gameService).handleJoinGame(req, res));
 
         Spark.awaitInitialization();
+
+        // Start Jetty WebSocket server on a separate port (or same if not conflicting)
+        new Thread(() -> {
+            try {
+                int websocketPort = 8081; // Change to 8080 if you want to share the port
+                org.eclipse.jetty.server.Server wsServer = new org.eclipse.jetty.server.Server(websocketPort);
+
+                ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+                context.setContextPath("/");
+
+                WebSocketHandler wsHandler = new WebSocketHandler() {
+                    @Override
+                    public void configure(WebSocketServletFactory factory) {
+                        factory.register(GameWebSocket.class);
+                    }
+                };
+
+                context.setHandler(wsHandler);
+                wsServer.setHandler(context);
+
+                wsServer.start();
+                System.out.println("WebSocket server started on port " + websocketPort);
+                wsServer.join();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+
+
         System.out.println("Server started on port " + Spark.port()); // Server is definitely running...
         return Spark.port();
     }

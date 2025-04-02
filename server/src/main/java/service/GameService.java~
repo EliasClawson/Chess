@@ -79,7 +79,7 @@ public class GameService {
             }
 
             if (joinAsWhite) {
-                if (game.getWhiteUsername() != null && !game.getWhiteUsername().equals(auth.getUsername())) {
+                if (game.getWhiteUsername() != null) {
                     throw new IllegalArgumentException("White slot already taken.");
                 }
                 game = new GameData(

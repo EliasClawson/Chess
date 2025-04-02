@@ -20,12 +20,13 @@ public class ChessClientUI {
     private final ChessBoardRenderer boardRenderer;
 
     private List<GameInfo> lastGames;
-
+    private boolean inGame;
 
     public ChessClientUI(ServerFacade facade) {
         this.facade = facade;
         this.scanner = new Scanner(System.in);
         this.boardRenderer = new ChessBoardRenderer();
+        this.inGame = false;
     }
 
     public void run() throws IOException {
@@ -33,8 +34,10 @@ public class ChessClientUI {
         while (true) {
             if (currentUser == null) {
                 preloginMenu();
-            } else {
+            } else if (!inGame){
                 postloginMenu();
+            } else {
+                inGameMenu();
             }
         }
     }
@@ -86,6 +89,40 @@ public class ChessClientUI {
                 break;
             case "2":
                 doLogout();
+                break;
+            case "3":
+                doCreateGame();
+                break;
+            case "4":
+                doListGames();
+                break;
+            case "5":
+                doJoinGame();  // for play game
+                break;
+            case "6":
+                doObserveGame(); // might simply draw the board
+                break;
+            default:
+                System.out.println("Invalid option.");
+        }
+    }
+
+    private void inGameMenu() {
+        System.out.println("=== In Game Menu ===");
+        System.out.println("1. Help");
+        System.out.println("2. Redraw Chess Board");
+        System.out.println("3. Leave");
+        System.out.println("4. Make Move");
+        System.out.println("5. Resign");
+        System.out.println("6. Highlight Legal Moves");
+        System.out.print("> ");
+        String choice = scanner.nextLine().trim();
+        switch (choice) {
+            case "1":
+                printInGameHelp();
+                break;
+            case "2":
+                doRedrawBoard();
                 break;
             case "3":
                 doCreateGame();
@@ -223,6 +260,7 @@ public class ChessClientUI {
             facade.joinGame(currentUser.getAuthToken(), gameID, joinAsWhite);
             System.out.println("Joined game " + gameNum + " as " + (joinAsWhite ? "WHITE" : "BLACK"));
             boardRenderer.renderBoard(!joinAsWhite);
+            this.inGame = true;
         } catch (Exception e) {
             System.out.println(extractErrorMessage(e.getMessage()));
         }
@@ -260,6 +298,10 @@ public class ChessClientUI {
         boardRenderer.renderBoard(false);
     }
 
+    private void doRedrawBoard() {
+        boardRenderer.renderBoard(false);
+    }
+
     private void printPreloginHelp() {
         System.out.println("Prelogin Help:");
         System.out.println(" - Register: Create a new user account.");
@@ -274,6 +316,15 @@ public class ChessClientUI {
         System.out.println(" - List Games: Display a list of current games.");
         System.out.println(" - Play Game: Join a game as a player.");
         System.out.println(" - Observe Game: Watch a game (for now, just draw the board).");
+    }
+
+    private void printInGameHelp() {
+        System.out.println("In Game Help:");
+        System.out.println(" - Redraw chess board: Reload the current chessboard.");
+        System.out.println(" - Leave: Exit the current game to the previous menu");
+        System.out.println(" - Make Move: Make a move in the current game.");
+        System.out.println(" - Resign: Resign the current game. Ends Game.");
+        System.out.println(" - Highlight Legal Moves: Enter a piece and highlight legal moves on the board.");
     }
 
     private String extractErrorMessage(String jsonMessage) {
