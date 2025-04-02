@@ -4,8 +4,8 @@ import com.google.gson.Gson;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
-import webSocketMessages.ChessAction;
-import webSocketMessages.ChessNotification;
+import websocket.messages.ChessAction;
+import websocket.messages.ChessNotification;
 
 import java.io.IOException;
 

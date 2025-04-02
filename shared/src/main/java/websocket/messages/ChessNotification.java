@@ -1,4 +1,4 @@
-package webSocketMessages;
+package websocket.messages;
 
 public class ChessNotification {
 

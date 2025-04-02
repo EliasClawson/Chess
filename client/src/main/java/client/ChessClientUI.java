@@ -261,6 +261,12 @@ public class ChessClientUI {
             System.out.println("Joined game " + gameNum + " as " + (joinAsWhite ? "WHITE" : "BLACK"));
             boardRenderer.renderBoard(!joinAsWhite);
             this.inGame = true;
+
+            //Start websocket connection
+            ChessWebSocketClient webSocketClient = new ChessWebSocketClient();
+            String wsUrl = "ws://localhost:8081/";  // Match your server WebSocket port
+            webSocketClient.connect(wsUrl, currentUser.getUsername(), gameID);
+
         } catch (Exception e) {
             System.out.println(extractErrorMessage(e.getMessage()));
         }
