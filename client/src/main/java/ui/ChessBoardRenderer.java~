@@ -84,7 +84,7 @@ public class ChessBoardRenderer {
         String bgColor;
         if (highlight) {
             boolean isLight = ((row + col) % 2 == 1);
-            bgColor = isLight ? EscapeSequences.SET_BG_COLOR_HIGHLIGHT_LIGHT : EscapeSequences.SET_BG_COLOR_HIGHLIGHT_DARK;
+            bgColor = isLight ? EscapeSequences.SET_BG_COLOR_YELLOW : EscapeSequences.SET_BG_COLOR_GREEN;
         } else {
             boolean isLight = ((row + col) % 2 == 1);
             bgColor = isLight ? EscapeSequences.SET_BG_COLOR_LIGHT_GREY : EscapeSequences.SET_BG_COLOR_DARK_GREY;

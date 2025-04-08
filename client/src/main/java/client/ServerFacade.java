@@ -254,7 +254,25 @@ public class ServerFacade {
         }
     }
 
+    public ChessGame getFullGameState(String authToken, int gameID) throws Exception {
+        HttpClient httpClient = HttpClient.newHttpClient();
+        // Build a URI for the endpoint (adjust path as needed)
+        URI uri = URI.create(baseUrl + "/game/state?gameID=" + gameID);
 
+        HttpRequest request = HttpRequest.newBuilder(uri)
+                .header("Authorization", authToken)
+                .GET()
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
+        if (response.statusCode() >= 200 && response.statusCode() < 300) {
+            // Assuming ChessGame is a shared model representing the game state.
+            ChessGame game = new Gson().fromJson(response.body(), ChessGame.class);
+            return game;
+        } else {
+            throw new Exception("Error fetching game state: " + response.body());
+        }
+    }
 
     public void leaveGame(String authToken, int gameID) throws IOException {
         String endpoint = baseUrl + "/game/leave?gameID=" + gameID;

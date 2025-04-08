@@ -456,7 +456,7 @@ public class ChessClientUI {
             // Now redraw the board, highlighting the squares of legal moves.
             // For this, modify your board renderer method to accept a collection of moves to highlight.
             // For example, add an overloaded renderBoard method:
-            boardRenderer.renderBoard(gameState.getBoard(), !isPlayerWhite, legalMoves);
+            boardRenderer.renderBoardHighlights(gameState.getBoard(), !isPlayerWhite, legalMoves);
 
         } catch (Exception e) {
             System.out.println("Error highlighting moves: " + e.getMessage());
