@@ -301,8 +301,13 @@ public class ChessClientUI {
 
     private void doLeaveGame() {
         try {
-            facade.leaveGame(currentUser.getAuthToken(), currentGameID);
-            System.out.println("You have left the game (REST update successful).");
+            // Only call the REST update if the user is a player
+            if (!isObserver) {
+                facade.leaveGame(currentUser.getAuthToken(), currentGameID);
+                System.out.println("You have left the game (REST update successful).");
+            } else {
+                System.out.println("As an observer, no REST update is needed.");
+            }
 
             if (webSocketClient != null) {
                 String displayGameNumber = String.valueOf(currentGameNumber);
@@ -310,14 +315,13 @@ public class ChessClientUI {
                 String role = isObserver ? "Observer" : isPlayerWhite ? "WHITE" : "BLACK";
                 webSocketClient.sendLeave(username, currentGameID, displayGameNumber, role);
 
-                // ⏳ Wait up to 500ms for leave confirmation
+                // Wait for leave acknowledgement
                 for (int i = 0; i < 10; i++) {
                     if (webSocketClient.leaveAcknowledged) break;
                     Thread.sleep(50);
                 }
 
                 webSocketClient.close();
-
                 webSocketClient = null;
             }
             inGame = false;
@@ -325,6 +329,7 @@ public class ChessClientUI {
             System.out.println("Error leaving game: " + extractErrorMessage(e.getMessage()));
         }
     }
+
 
 
     private void doResignGame() {
@@ -400,7 +405,7 @@ public class ChessClientUI {
 
             // Notice: we use the normal join (not a separate OBSERVE action)
             webSocketClient.connect(wsUrl, username, gameID, displayGameNumber, role);
-            System.out.println("Now observing game " + gameID);
+            System.out.println("Now observing game " + gameNum);
             inGame = true;
         } catch (Exception e) {
             System.err.println("WebSocket connection failed:");
@@ -411,9 +416,9 @@ public class ChessClientUI {
 
     private void doRedrawBoard() {
         try {
-            System.out.println("Redrawing board with messy ID: " + currentGameID);
+            //System.out.println("Redrawing board with messy ID: " + currentGameID);
             ChessBoard gameBoard  = facade.getGameState(currentUser.getAuthToken(), currentGameID);
-            System.out.println("Got this board from the server:\n" + gameBoard);
+            //System.out.println("Got this board from the server:\n" + gameBoard);
             boardRenderer.renderBoard(gameBoard, !isPlayerWhite);
         } catch (Exception e) {
             System.out.println("Failed to redraw board: " + extractErrorMessage(e.getMessage()));
