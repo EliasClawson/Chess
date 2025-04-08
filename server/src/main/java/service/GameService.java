@@ -1,5 +1,7 @@
 package service;
 
+import chess.ChessBoard;
+import chess.ChessGame;
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
 import dataaccess.DataAccessException;
@@ -106,4 +108,85 @@ public class GameService {
             throw new RuntimeException("Error joining game: " + e.getMessage(), e);
         }
     }
+
+    public ChessBoard getGameState(int gameID) {
+        try {
+            ChessBoard gameBoard = gameDAO.getGame(gameID).getGame().getBoard();
+            if (gameBoard == null) {
+                throw new IllegalArgumentException("Game not found.");
+            }
+            return gameBoard;
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Error fetching game state: " + e.getMessage(), e);
+        }
+    }
+
+    public void leaveGame(String authToken, int gameID) {
+        AuthData auth;
+        try {
+            auth = authDAO.getAuth(authToken);
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Error checking auth token: " + e.getMessage(), e);
+        }
+        if (auth == null) {
+            throw new IllegalArgumentException("Invalid auth token.");
+        }
+        try {
+            GameData game = gameDAO.getGame(gameID);
+            if (game == null) {
+                throw new IllegalArgumentException("Game not found.");
+            }
+            // Remove player from the appropriate slot if they are in the game.
+            if (game.getWhiteUsername() != null && game.getWhiteUsername().equals(auth.getUsername())) {
+                // Remove from white slot.
+                game = new GameData(game.getGameID(), null, game.getBlackUsername(), game.getGameName(), game.getGame());
+            } else if (game.getBlackUsername() != null && game.getBlackUsername().equals(auth.getUsername())) {
+                // Remove from black slot.
+                game = new GameData(game.getGameID(), game.getWhiteUsername(), null, game.getGameName(), game.getGame());
+            } else {
+                throw new IllegalArgumentException("Player is not part of this game.");
+            }
+            gameDAO.updateGame(game);
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Error updating game: " + e.getMessage(), e);
+        }
+    }
+
+    public void resignGame(String authToken, int gameID) {
+        AuthData auth;
+        try {
+            auth = authDAO.getAuth(authToken);
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Error checking auth token: " + e.getMessage(), e);
+        }
+        if (auth == null) {
+            throw new IllegalArgumentException("Invalid auth token.");
+        }
+        try {
+            GameData game = gameDAO.getGame(gameID);
+            if (game == null) {
+                throw new IllegalArgumentException("Game not found.");
+            }
+            // Check that the player is actually in the game.
+            if (!auth.getUsername().equals(game.getWhiteUsername()) &&
+                    !auth.getUsername().equals(game.getBlackUsername())) {
+                throw new IllegalArgumentException("Player is not part of this game.");
+            }
+            // Mark the game as over.
+            ChessGame chessGame = game.getGame();
+            chessGame.setGameOver(true);
+            // Optionally, you could determine the winner here if desired.
+            // For now we simply mark it as over.
+            gameDAO.updateGame(new GameData(
+                    game.getGameID(),
+                    game.getWhiteUsername(),
+                    game.getBlackUsername(),
+                    game.getGameName(),
+                    chessGame));
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Error updating game: " + e.getMessage(), e);
+        }
+    }
+
+
 }

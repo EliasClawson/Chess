@@ -3,12 +3,14 @@ package client;
 import java.util.List;
 import java.util.Scanner;
 
+import chess.ChessBoard;
 import com.google.gson.Gson;
 import model.AuthData;
 import model.GameInfo;
 import ui.ChessBoardRenderer;
 import client.ClientErrorResponse;
 import java.io.IOException;
+import chess.ChessGame;
 
 public class ChessClientUI {
 
@@ -18,9 +20,12 @@ public class ChessClientUI {
     private AuthData currentUser;
     // For drawing the board:
     private final ChessBoardRenderer boardRenderer;
+    private ChessWebSocketClient webSocketClient;
 
     private List<GameInfo> lastGames;
     private boolean inGame;
+    private boolean isPlayerWhite;
+    private int currentGameID;
 
     public ChessClientUI(ServerFacade facade) {
         this.facade = facade;
@@ -125,16 +130,16 @@ public class ChessClientUI {
                 doRedrawBoard();
                 break;
             case "3":
-                doCreateGame();
+                doLeaveGame();
                 break;
             case "4":
-                doListGames();
+                System.out.println("not implimented");
                 break;
             case "5":
-                doJoinGame();  // for play game
+                doResignGame();
                 break;
             case "6":
-                doObserveGame(); // might simply draw the board
+                doObserveGame();
                 break;
             default:
                 System.out.println("Invalid option.");
@@ -259,18 +264,71 @@ public class ChessClientUI {
             boolean joinAsWhite = color.equalsIgnoreCase("WHITE") || color.equalsIgnoreCase("W");
             facade.joinGame(currentUser.getAuthToken(), gameID, joinAsWhite);
             System.out.println("Joined game " + gameNum + " as " + (joinAsWhite ? "WHITE" : "BLACK"));
-            boardRenderer.renderBoard(!joinAsWhite);
+            //boardRenderer.renderBoard(!joinAsWhite);
             this.inGame = true;
+            this.currentGameID = gameID;
+            this.isPlayerWhite = joinAsWhite;
 
             //Start websocket connection
-            ChessWebSocketClient webSocketClient = new ChessWebSocketClient();
-            String wsUrl = "ws://localhost:8081/";  // Match your server WebSocket port
-            webSocketClient.connect(wsUrl, currentUser.getUsername(), gameID);
+            try {
+                String username = currentUser.getUsername(); // or however you're storing this
+                String wsUrl = "ws://localhost:8081/"; // this matches your server setup
 
+                webSocketClient = new ChessWebSocketClient();
+                webSocketClient.connect(wsUrl, username, gameID);
+
+                System.out.println("🎉 Connected to game with messy ID: " + gameID);
+                doRedrawBoard();
+
+            } catch (Exception e) {
+                System.err.println("WebSocket connection failed:");
+                e.printStackTrace();
+            }
         } catch (Exception e) {
             System.out.println(extractErrorMessage(e.getMessage()));
         }
     }
+
+    private void doLeaveGame() {
+        try {
+            // 1. Update persistent game state via REST.
+            facade.leaveGame(currentUser.getAuthToken(), currentGameID);
+            System.out.println("You have left the game (REST update successful).");
+
+            // 2. If the WebSocket client is active, send the LEAVE message and then close the connection.
+            if (webSocketClient != null) {
+                webSocketClient.sendLeave(currentUser.getUsername(), currentGameID);
+                webSocketClient.close();
+                webSocketClient = null;
+            }
+
+            // 3. Update the client state: mark as not in-game.
+            inGame = false;
+        } catch (Exception e) {
+            System.out.println("Error leaving game: " + extractErrorMessage(e.getMessage()));
+        }
+    }
+
+    private void doResignGame() {
+        try {
+            // 1. Update persistent game state via REST.
+            facade.resignGame(currentUser.getAuthToken(), currentGameID);
+            System.out.println("You have resigned the game (REST update successful).");
+
+            // 2. Send a resign action over WebSocket and then close the connection.
+            if (webSocketClient != null) {
+                webSocketClient.sendResign(currentUser.getUsername(), currentGameID);
+                webSocketClient.close();
+                webSocketClient = null;
+            }
+
+            // 3. Update client UI state.
+            inGame = false;
+        } catch (Exception e) {
+            System.out.println("Error resigning game: " + extractErrorMessage(e.getMessage()));
+        }
+    }
+
 
 
 
@@ -299,13 +357,18 @@ public class ChessClientUI {
             }
         }
 
-        // For now, simply draw the chessboard (or print a message)
-        System.out.println("Observing game - drawing initial chessboard:");
-        boardRenderer.renderBoard(false);
+        System.out.println("Not implimented yet");
     }
 
     private void doRedrawBoard() {
-        boardRenderer.renderBoard(false);
+        try {
+            System.out.println("Redrawing board with messy ID: " + currentGameID);
+            ChessBoard gameBoard  = facade.getGameState(currentUser.getAuthToken(), currentGameID);
+            System.out.println("Got this board from the server:\n" + gameBoard);
+            boardRenderer.renderBoard(gameBoard, !isPlayerWhite);
+        } catch (Exception e) {
+            System.out.println("Failed to redraw board: " + extractErrorMessage(e.getMessage()));
+        }
     }
 
     private void printPreloginHelp() {

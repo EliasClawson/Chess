@@ -105,6 +105,9 @@ public class Server {
         Spark.get("/game", (req, res) -> new GameHandler(gameService).handleListGames(req, res));
         Spark.post("/game", (req, res) -> new GameHandler(gameService).handleCreateGame(req, res));
         Spark.put("/game", (req, res) -> new GameHandler(gameService).handleJoinGame(req, res));
+        Spark.get("/game/state", (req, res) -> new GameHandler(gameService).handleGetGameState(req, res));
+        Spark.delete("/game/leave", (req, res) -> new GameHandler(gameService).handleLeaveGame(req, res));
+        Spark.delete("/game/resign", (req, res) -> new GameHandler(gameService).handleResignGame(req, res));
 
         Spark.awaitInitialization();
 

@@ -66,13 +66,7 @@ public class ChessWebSocketClient {
         session.getAsyncRemote().sendText(leaveMessage);
     }
 
-    public void sendResign(String username, int gameId) {
-        String resignMessage = gson.toJson(
-                new ChessAction(ChessAction.ActionType.RESIGN, username, gameId, null)
-        );
-        session.getAsyncRemote().sendText(resignMessage);
-    }
-
+    
 
 
     public void close() throws Exception {

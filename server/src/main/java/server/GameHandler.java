@@ -1,5 +1,6 @@
 package server;
 
+import chess.ChessBoard;
 import com.google.gson.Gson;
 import model.*;
 import spark.Request;
@@ -87,4 +88,56 @@ public class GameHandler {
             return gson.toJson(new ErrorResponse("Error: " + errorMessage));
         }
     }
+
+    // Handles GET /game/state: retrieves the current game state.
+    public Object handleGetGameState(Request req, Response res) {
+        try {
+            String authToken = req.headers("Authorization");
+            int gameId = Integer.parseInt(req.queryParams("gameID"));
+
+            // Optionally check the auth token here.
+
+            // Retrieve the game state from GameService.
+            ChessBoard game = gameService.getGameState(gameId);
+
+            res.status(200);
+            return gson.toJson(game);
+        } catch (Exception e) {
+            res.status(400);
+            return gson.toJson(new ErrorResponse("Error: " + e.getMessage()));
+        }
+    }
+
+    // Takes player entirely out of game, but doesn't end game (That's resign)
+    public Object handleLeaveGame(Request req, Response res) {
+        try {
+            String authToken = req.headers("Authorization");
+            int gameID = Integer.parseInt(req.queryParams("gameID"));
+            // Call the service method to remove the user from the game.
+            gameService.leaveGame(authToken, gameID);
+            res.status(200);
+            return gson.toJson(new Object()); // returns "{}"
+        } catch (Exception e) {
+            String errorMessage = e.getMessage();
+            res.status(400);
+            return gson.toJson(new ErrorResponse("Error: " + errorMessage));
+        }
+    }
+
+    // Handles DELETE /game/resign: marks the game as over due to resignation.
+    public Object handleResignGame(Request req, Response res) {
+        try {
+            String authToken = req.headers("Authorization");
+            int gameID = Integer.parseInt(req.queryParams("gameID"));
+            gameService.resignGame(authToken, gameID);
+            res.status(200);
+            return gson.toJson(new Object()); // returns "{}"
+        } catch (Exception e) {
+            res.status(400);
+            return gson.toJson(new ErrorResponse("Error: " + e.getMessage()));
+        }
+    }
+
+
+
 }

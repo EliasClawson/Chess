@@ -14,6 +14,7 @@ public class ChessGame {
 
     TeamColor teamTurn;
     ChessBoard gameBoard;
+    private boolean gameOver = false;
 
     public ChessGame() {
         gameBoard = new ChessBoard();
@@ -396,6 +397,15 @@ public class ChessGame {
             }
         }
         return true;
+    }
+
+    // returns state of game
+    public boolean isGameOver() {
+        return gameOver;
+    }
+
+    public void setGameOver(boolean gameOver) {
+        this.gameOver = gameOver;
     }
 
     /**
