@@ -1,5 +1,6 @@
 package client;
 
+import chess.ChessBoard;
 import websocket.messages.ChessAction;
 import websocket.messages.ChessNotification;
 import javax.websocket.ClientEndpoint;
@@ -12,6 +13,8 @@ import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
 import javax.websocket.CloseReason;
 import com.google.gson.Gson;
+import websocket.messages.ServerMessage;
+
 import java.net.URI;
 
 @ClientEndpoint
@@ -64,6 +67,19 @@ public class ChessWebSocketClient {
 
     }
 
+    public void sendMove(String username, int gameId, String move) {
+        String moveMessage = gson.toJson(new ChessAction(
+                ChessAction.ActionType.MOVE,
+                username,
+                gameId,
+                move,
+                null,  // displayGameNumber is not needed for MOVE
+                null   // role is also not needed for MOVE
+        ));
+        session.getAsyncRemote().sendText(moveMessage);
+    }
+
+
     @OnOpen
     public void onOpen(Session session) {
         //System.out.println("Connected to WebSocket server");
@@ -72,15 +88,20 @@ public class ChessWebSocketClient {
 
     @OnMessage
     public void onMessage(String message) {
-        ChessNotification notification = gson.fromJson(message, ChessNotification.class);
-        System.out.println("⚡ WebSocket message: " + notification.getMessage());
-
-        // Check if this message indicates the user has left
-        if (notification.getType() == ChessNotification.NotificationType.PLAYER_LEFT &&
-                notification.getMessage().contains("left game")) {
-            leaveAcknowledged = true;
+        // First, try to see if it's a ServerMessage (LOAD_GAME) message.
+        if (message.contains("LOAD_GAME")) {
+            // Parse the ServerMessage.
+            ServerMessage srvMsg = new Gson().fromJson(message, ServerMessage.class);
+            if (srvMsg.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
+                // Move made
+                return;
+            }
         }
+        // Otherwise, treat it as a normal notification.
+        ChessNotification notification = new Gson().fromJson(message, ChessNotification.class);
+        System.out.println("⚡ WebSocket message: " + notification.getMessage());
     }
+
 
     @OnClose
     public void onClose(Session session, CloseReason reason) {

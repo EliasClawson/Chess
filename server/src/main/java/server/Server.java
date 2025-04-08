@@ -115,16 +115,17 @@ public class Server {
         // Start Jetty WebSocket server on a separate port (or same if not conflicting)
         new Thread(() -> {
             try {
-                int websocketPort = 8081; // Change to 8080 if you want to share the port
+                int websocketPort = 8081; // or your choice
                 org.eclipse.jetty.server.Server wsServer = new org.eclipse.jetty.server.Server(websocketPort);
 
                 ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
                 context.setContextPath("/");
 
+                // Use a WebSocketCreator to supply your shared GameService.
                 WebSocketHandler wsHandler = new WebSocketHandler() {
                     @Override
                     public void configure(WebSocketServletFactory factory) {
-                        factory.register(GameWebSocket.class);
+                        factory.setCreator((req, resp) -> new GameWebSocket(gameService));
                     }
                 };
 
@@ -138,6 +139,7 @@ public class Server {
                 e.printStackTrace();
             }
         }).start();
+
 
 
         System.out.println("Server started on port " + Spark.port()); // Server is definitely running...

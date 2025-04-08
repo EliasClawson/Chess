@@ -466,47 +466,37 @@ public class ChessClientUI {
     // This method should run from within your ChessClientUI
     private void doMakeMove() {
         try {
-            // 1. Make sure the user is a player.
+            // Ensure player (not observer) and that it's their turn.
             if (isObserver) {
                 System.out.println("Observers cannot make moves.");
                 return;
             }
 
-            // 2. Query the current game state.
-            ChessGame gameState = facade.getFullGameState(currentUser.getAuthToken(), currentGameID);
-
-            // 3. Check if it is this player's turn.
-            // Assuming isPlayerWhite indicates the player's team.
-            chess.ChessGame.TeamColor turn = gameState.getTeamTurn();
-            if ((isPlayerWhite && turn != chess.ChessGame.TeamColor.WHITE) ||
-                    (!isPlayerWhite && turn != chess.ChessGame.TeamColor.BLACK)) {
+            // Retrieve the full game state.
+            chess.ChessGame gameState = facade.getFullGameState(currentUser.getAuthToken(), currentGameID);
+            if ( (isPlayerWhite && gameState.getTeamTurn() != chess.ChessGame.TeamColor.WHITE) ||
+                    (!isPlayerWhite && gameState.getTeamTurn() != chess.ChessGame.TeamColor.BLACK) ) {
                 System.out.println("It's not your turn.");
                 return;
             }
 
-            // 4. Prompt for move input.
+            // Prompt for move string.
             System.out.print("Enter your move (e.g., e2e4): ");
-            String input = scanner.nextLine().trim();
+            String moveInput = scanner.nextLine().trim();
 
-            // 5. Parse move
-            chess.ChessMove move = parseMove(input);
+            // (Optional) Parse move string to validate format.
+            chess.ChessMove move = parseMove(moveInput);
 
-            // Optionally, you can validate if the move is legal locally by calling:
-            // Collection<ChessMove> legalMoves = gameState.validMoves(move.getStartPosition());
-            // if (legalMoves == null || !legalMoves.contains(move)) { ... }
+            // Send move over WebSocket.
+            webSocketClient.sendMove(currentUser.getUsername(), currentGameID, moveInput);
+            System.out.println("Move sent: " + moveInput);
 
-            // 6. If valid, send the move over the WebSocket.
-            // This uses the existing sendMove method.
-            webSocketClient.sendMove(currentUser.getUsername(), currentGameID, input);
-            System.out.println("Move sent: " + input);
-
-            // Optionally, you can wait for a server response (via WebSocket notification)
-            // and then refresh the board (e.g., doRedrawBoard())
-
+            doRedrawBoard();
         } catch (Exception e) {
             System.out.println("Error making move: " + e.getMessage());
         }
     }
+
 
 
     private chess.ChessMove parseMove(String input) throws IllegalArgumentException {

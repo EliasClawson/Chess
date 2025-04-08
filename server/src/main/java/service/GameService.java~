@@ -189,6 +189,14 @@ public class GameService {
         }
     }
 
+    // Helper method remains the same.
+    private static ChessPosition parsePosition(String pos) {
+        char colChar = Character.toLowerCase(pos.charAt(0));
+        int col = colChar - 'a' + 1;
+        int row = Character.getNumericValue(pos.charAt(1));
+        return new ChessPosition(row, col);
+    }
+
 
     private static ChessPosition parsePosition(String pos) {
         char colChar = Character.toLowerCase(pos.charAt(0));
