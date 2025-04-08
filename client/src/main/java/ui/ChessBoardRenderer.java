@@ -2,24 +2,27 @@ package ui;
 
 import chess.ChessBoard;
 import chess.ChessGame;
+import chess.ChessMove;
 import chess.ChessPiece;
 import ui.EscapeSequences;
+
+import java.util.Collection;
 
 import static ui.EscapeSequences.*;
 
 public class ChessBoardRenderer {
 
-    public void renderBoard(ChessBoard board, boolean isBlack) {
+    public void renderBoard(ChessBoard board, boolean isBlack, Collection<ChessMove> highlights) {
         // Clear the screen
         System.out.print(EscapeSequences.ERASE_SCREEN);
 
-        // Decide row/column order based on player's perspective
+        // Determine board drawing order based on isBlack
         if (isBlack) {
             System.out.println("   H  G  F  E  D  C  B  A");
             for (int row = 1; row <= 8; row++) {
                 System.out.printf("%d ", row);
                 for (int col = 8; col >= 1; col--) {
-                    renderPiece(board, row, col);
+                    renderPiece(board, row, col, highlights);
                 }
                 System.out.printf(" %d%n", row);
             }
@@ -29,13 +32,45 @@ public class ChessBoardRenderer {
             for (int row = 8; row >= 1; row--) {
                 System.out.printf("%d ", row);
                 for (int col = 1; col <= 8; col++) {
-                    renderPiece(board, row, col);
+                    renderPiece(board, row, col, highlights);
                 }
                 System.out.printf(" %d%n", row);
             }
             System.out.println("   A  B  C  D  E  F  G  H");
         }
     }
+
+    // New helper method that uses the board and checks if a square should be highlighted
+    private void renderPiece(ChessBoard board, int row, int col, Collection<ChessMove> highlights) {
+        // Check if the square (row, col) is among the destination positions in any legal move.
+        boolean highlight = false;
+        for (var move : highlights) {
+            if (move.getEndPosition().getRow() == row && move.getEndPosition().getColumn() == col) {
+                highlight = true;
+                break;
+            }
+        }
+
+        // Determine background color: if highlight, use a bright highlight color; else normal light/dark.
+        String bgColor;
+        if (highlight) {
+            bgColor = EscapeSequences.SET_TEXT_COLOR_YELLOW; // For example; define this in your EscapeSequences.
+        } else {
+            boolean isLight = ((row + col) % 2 == 1);
+            bgColor = isLight ? EscapeSequences.SET_BG_COLOR_LIGHT_GREY : EscapeSequences.SET_BG_COLOR_DARK_GREY;
+        }
+
+        // Get the piece at the given position.
+        var piece = board.getPiece(new chess.ChessPosition(row, col));
+        String pieceStr;
+        if (piece == null) {
+            pieceStr = EscapeSequences.EMPTY;
+        } else {
+            pieceStr = getSymbol(piece);  // your getSymbol method that returns piece icons.
+        }
+        System.out.printf("%s%3s%s", bgColor, pieceStr, EscapeSequences.RESET_BG_COLOR);
+    }
+
 
     // New helper method that uses the board model
     private void renderPiece(ChessBoard board, int row, int col) {

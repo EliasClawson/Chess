@@ -121,6 +121,18 @@ public class GameService {
         }
     }
 
+    public ChessGame getFullGameState(int gameID) {
+        try {
+            ChessGame game = gameDAO.getGame(gameID).getGame();
+            if (game == null) {
+                throw new IllegalArgumentException("Game not found.");
+            }
+            return game;
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Error fetching game state: " + e.getMessage(), e);
+        }
+    }
+
     public void leaveGame(String authToken, int gameID) {
         AuthData auth;
         try {

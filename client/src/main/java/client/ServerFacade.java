@@ -254,6 +254,8 @@ public class ServerFacade {
         }
     }
 
+
+
     public void leaveGame(String authToken, int gameID) throws IOException {
         String endpoint = baseUrl + "/game/leave?gameID=" + gameID;
         URL url = new URL(endpoint);

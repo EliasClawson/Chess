@@ -1,6 +1,7 @@
 package server;
 
 import chess.ChessBoard;
+import chess.ChessGame;
 import com.google.gson.Gson;
 import model.*;
 import spark.Request;
@@ -138,6 +139,22 @@ public class GameHandler {
         }
     }
 
+    // This just makes highlighting moves and such easier
+    public Object handleGetFullGameState(Request req, Response res) {
+        try {
+            String authToken = req.headers("Authorization");
+            int gameId = Integer.parseInt(req.queryParams("gameID"));
+
+            // Retrieve the full game state from GameService. Assume it returns a ChessGame.
+            ChessGame game = gameService.getFullGameState(gameId);
+
+            res.status(200);
+            return gson.toJson(game);
+        } catch (Exception e) {
+            res.status(400);
+            return gson.toJson(new ErrorResponse("Error: " + e.getMessage()));
+        }
+    }
 
 
 }

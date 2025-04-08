@@ -108,6 +108,7 @@ public class Server {
         Spark.get("/game/state", (req, res) -> new GameHandler(gameService).handleGetGameState(req, res));
         Spark.delete("/game/leave", (req, res) -> new GameHandler(gameService).handleLeaveGame(req, res));
         Spark.delete("/game/resign", (req, res) -> new GameHandler(gameService).handleResignGame(req, res));
+        Spark.get("/game/fullstate", (req, res) -> new GameHandler(gameService).handleGetFullGameState(req, res));
 
         Spark.awaitInitialization();
 

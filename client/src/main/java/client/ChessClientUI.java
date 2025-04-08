@@ -141,7 +141,7 @@ public class ChessClientUI {
                 doResignGame();
                 break;
             case "6":
-                doObserveGame();
+                doHighlightMoves();
                 break;
             default:
                 System.out.println("Invalid option.");
@@ -424,6 +424,62 @@ public class ChessClientUI {
             System.out.println("Failed to redraw board: " + extractErrorMessage(e.getMessage()));
         }
     }
+
+    private void doHighlightMoves() {
+        try {
+            // Prompt for a position input (e.g., "e2")
+            System.out.print("Enter board position of piece to highlight legal moves:");
+            String posInput = scanner.nextLine().trim();
+            chess.ChessPosition pos = parsePosition(posInput);
+
+            // Retrieve the current full game state from the server.
+            // You can call facade.getGameState() if it returns a ChessGame.
+            // Otherwise, maintain your local game state.
+            ChessGame gameState = facade.getFullGameState(currentUser.getAuthToken(), currentGameID);
+            // Alternatively, if your facade.getGameState returns only a ChessBoard,
+            // ensure you have a way to get the full ChessGame.
+
+            // Compute legal moves using the game logic.
+            // validMoves(...) returns a Collection<ChessMove>.
+            // NOTE: Your ChessGame.validMoves(pos) method exists as per your ChessGame.java.
+            // (Assuming that gameState is an instance of ChessGame)
+            var legalMoves = gameState.validMoves(pos);
+            if (legalMoves == null || legalMoves.isEmpty()) {
+                System.out.println("No legal moves available for the piece at " + posInput);
+            } else {
+                System.out.println("Legal moves:");
+                for (var move : legalMoves) {
+                    System.out.println("From " + move.getStartPosition() + " to " + move.getEndPosition());
+                }
+            }
+
+            // Now redraw the board, highlighting the squares of legal moves.
+            // For this, modify your board renderer method to accept a collection of moves to highlight.
+            // For example, add an overloaded renderBoard method:
+            boardRenderer.renderBoard(gameState.getBoard(), !isPlayerWhite, legalMoves);
+
+        } catch (Exception e) {
+            System.out.println("Error highlighting moves: " + e.getMessage());
+        }
+    }
+
+
+    // Example helper inside ChessClientUI or a separate utility class.
+    private chess.ChessPosition parsePosition(String pos) throws IllegalArgumentException {
+        // Expect pos in the format "e2" (column letter, row number)
+        if (pos == null || pos.length() != 2) {
+            throw new IllegalArgumentException("Invalid format. Use a letter (a-h) followed by a number (1-8).");
+        }
+        char colChar = Character.toLowerCase(pos.charAt(0));
+        int row = Character.getNumericValue(pos.charAt(1));
+        if (colChar < 'a' || colChar > 'h' || row < 1 || row > 8) {
+            throw new IllegalArgumentException("Position out of bounds. Columns a-h and rows 1-8.");
+        }
+        // Convert letter to a column number (a = 1, b = 2, ...)
+        int col = colChar - 'a' + 1;
+        return new chess.ChessPosition(row, col);
+    }
+
 
     private void printPreloginHelp() {
         System.out.println("Prelogin Help:");
