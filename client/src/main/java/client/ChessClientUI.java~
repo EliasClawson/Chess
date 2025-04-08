@@ -135,7 +135,7 @@ public class ChessClientUI {
                 doLeaveGame();
                 break;
             case "4":
-                doMakeMove();
+                System.out.println("not implimented");
                 break;
             case "5":
                 doResignGame();
