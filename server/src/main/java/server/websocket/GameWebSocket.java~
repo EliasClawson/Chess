@@ -76,9 +76,9 @@ public class GameWebSocket {
         int gameId = action.getGameId();
         String displayNumber = action.getDisplayNumber();
         String role = action.getPlayerRole();
+        connections.remove(username, gameId);
         String msg = username + " left game " + displayNumber + " as " + role;
         ChessNotification notification = new ChessNotification(ChessNotification.NotificationType.PLAYER_LEFT, msg);
         connections.broadcast(gameId, notification);
-        connections.remove(username, gameId);
     }
 }

@@ -19,14 +19,49 @@ public class ChessWebSocketClient {
 
     private Session session;
     private final Gson gson = new Gson();
+    public volatile boolean leaveAcknowledged = false;  // add this
 
-    public void connect(String uri, String username, int gameId) throws Exception {
+
+    // New overloaded connect method that accepts extra fields.
+    public void connect(String uri, String username, int gameId, String displayGameNumber, String role) throws Exception {
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
         container.connectToServer(this, new URI(uri));
-
-        // Send JOIN message after connection
-        String joinMessage = gson.toJson(new ChessAction(ChessAction.ActionType.JOIN, username, gameId, null));
+        // It is assumed onOpen will be called soon; in production you might want to wait
+        String joinMessage = gson.toJson(new ChessAction(
+                ChessAction.ActionType.JOIN,
+                username,
+                gameId,
+                null, // move is null for join
+                displayGameNumber,
+                role
+        ));
         session.getAsyncRemote().sendText(joinMessage);
+    }
+
+    // Retain your existing methods or add similar overloaded ones for resign/leave if needed.
+    public void sendResign(String username, int gameId, String displayGameNumber, String role) {
+        String resignMessage = gson.toJson(new ChessAction(
+                ChessAction.ActionType.RESIGN,
+                username,
+                gameId,
+                null,
+                displayGameNumber,
+                role
+        ));
+        session.getAsyncRemote().sendText(resignMessage);
+    }
+
+    public void sendLeave(String username, int gameId, String displayGameNumber, String role) {
+        String leaveMessage = gson.toJson(new ChessAction(
+                ChessAction.ActionType.LEAVE,
+                username,
+                gameId,
+                null,
+                displayGameNumber,
+                role
+        ));
+        session.getAsyncRemote().sendText(leaveMessage);
+
     }
 
     @OnOpen
@@ -39,7 +74,12 @@ public class ChessWebSocketClient {
     public void onMessage(String message) {
         ChessNotification notification = gson.fromJson(message, ChessNotification.class);
         System.out.println("⚡ WebSocket message: " + notification.getMessage());
-        // Later: trigger UI redraw, board update, etc.
+
+        // Check if this message indicates the user has left
+        if (notification.getType() == ChessNotification.NotificationType.PLAYER_LEFT &&
+                notification.getMessage().contains("left game")) {
+            leaveAcknowledged = true;
+        }
     }
 
     @OnClose
@@ -52,28 +92,6 @@ public class ChessWebSocketClient {
         System.err.println("WebSocket error:");
         throwable.printStackTrace();
     }
-
-    public void sendMove(String username, int gameId, String move) {
-        String moveMessage = gson.toJson(new ChessAction(ChessAction.ActionType.MOVE, username, gameId, move));
-        session.getAsyncRemote().sendText(moveMessage);
-    }
-
-    public void sendLeave(String username, int gameId) {
-        // Create a LEAVE message using ChessAction
-        String leaveMessage = gson.toJson(
-                new ChessAction(ChessAction.ActionType.LEAVE, username, gameId, null)
-        );
-        session.getAsyncRemote().sendText(leaveMessage);
-    }
-
-    public void sendResign(String username, int gameId) {
-        String resignMessage = gson.toJson(
-                new ChessAction(ChessAction.ActionType.RESIGN, username, gameId, null)
-        );
-        session.getAsyncRemote().sendText(resignMessage);
-    }
-
-
 
     public void close() throws Exception {
         if (session != null) session.close();

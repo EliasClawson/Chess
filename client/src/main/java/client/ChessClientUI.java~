@@ -271,7 +271,6 @@ public class ChessClientUI {
             this.currentGameID = gameID;
             this.currentGameNumber = gameNum;
             this.isPlayerWhite = joinAsWhite;
-            this.isObserver = false;
 
             //Start websocket connection
             // Start websocket connection for joining as a player:
