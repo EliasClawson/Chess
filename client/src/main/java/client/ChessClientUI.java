@@ -287,7 +287,7 @@ public class ChessClientUI {
                 // Use the new overloaded connect() method:
                 webSocketClient.connect(wsUrl, username, gameID, displayGameNumber, role);
 
-                System.out.println("🎉 Connected to game " + gameID + " (display number " + displayGameNumber + ")");
+                System.out.println("🎉 Connected to game " + displayGameNumber);
                 doRedrawBoard();  // Refresh board display with real state
 
             } catch (Exception e) {
