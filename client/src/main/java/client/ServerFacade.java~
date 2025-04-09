@@ -257,7 +257,7 @@ public class ServerFacade {
     public ChessGame getFullGameState(String authToken, int gameID) throws Exception {
         HttpClient httpClient = HttpClient.newHttpClient();
         // Build a URI for the endpoint (adjust path as needed)
-        URI uri = URI.create(baseUrl + "/game/fullstate?gameID=" + gameID);
+        URI uri = URI.create(baseUrl + "/game/state?gameID=" + gameID);
 
         HttpRequest request = HttpRequest.newBuilder(uri)
                 .header("Authorization", authToken)

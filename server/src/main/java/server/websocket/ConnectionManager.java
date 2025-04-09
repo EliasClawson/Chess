@@ -56,4 +56,26 @@ public class ConnectionManager {
     public void broadcast(int gameId, ChessNotification notification) throws IOException {
         broadcast(gameId, "", notification);
     }
+
+    // Broadcast a raw JSON string (like a ServerMessage) to everyone in a game.
+    public void broadcastRaw(int gameId, String message) throws IOException {
+        if (!gameConnections.containsKey(gameId)) return;
+
+        var connections = gameConnections.get(gameId);
+        var removeList = new ArrayList<Connection>();
+
+        for (var conn : connections.values()) {
+            if (conn.session.isOpen()) {
+                conn.send(message);
+            } else {
+                removeList.add(conn);
+            }
+        }
+
+        for (var conn : removeList) {
+            connections.remove(conn.visitorName);
+        }
+    }
+
+
 }

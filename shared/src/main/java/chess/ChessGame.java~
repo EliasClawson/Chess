@@ -300,7 +300,6 @@ public class ChessGame {
         movingPiece.setNoMoves(false);
 
         // Change turn
-        System.out.println("Turn: " + teamTurn + " changes to " + (teamTurn == TeamColor.WHITE ? "BLACK" : "WHITE"));
         teamTurn = (teamTurn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
     }
 

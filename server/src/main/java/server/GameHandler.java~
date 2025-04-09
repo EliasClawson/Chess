@@ -141,7 +141,6 @@ public class GameHandler {
 
     // This just makes highlighting moves and such easier
     public Object handleGetFullGameState(Request req, Response res) {
-        System.out.println("HandleF");
         try {
             String authToken = req.headers("Authorization");
             int gameId = Integer.parseInt(req.queryParams("gameID"));

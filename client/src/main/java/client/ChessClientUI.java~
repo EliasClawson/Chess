@@ -474,7 +474,6 @@ public class ChessClientUI {
             // Retrieve the full game state.
             chess.ChessGame gameState = facade.getFullGameState(currentUser.getAuthToken(), currentGameID);
             System.out.println("Current game state has turn: " + gameState.getTeamTurn());
-            System.out.println("Is player white: " + isPlayerWhite);
             if ( (isPlayerWhite && gameState.getTeamTurn() != chess.ChessGame.TeamColor.WHITE) ||
                     (!isPlayerWhite && gameState.getTeamTurn() != chess.ChessGame.TeamColor.BLACK) ) {
                 System.out.println("It's not your turn.");

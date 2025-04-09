@@ -1,6 +1,7 @@
 package client;
 
 import chess.ChessBoard;
+import ui.ChessBoardRenderer;
 import websocket.messages.ChessAction;
 import websocket.messages.ChessNotification;
 import javax.websocket.ClientEndpoint;
@@ -88,19 +89,23 @@ public class ChessWebSocketClient {
 
     @OnMessage
     public void onMessage(String message) {
-        // First, try to see if it's a ServerMessage (LOAD_GAME) message.
-        if (message.contains("LOAD_GAME")) {
-            // Parse the ServerMessage.
-            ServerMessage srvMsg = new Gson().fromJson(message, ServerMessage.class);
-            if (srvMsg.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
-                // Move made
-                return;
+        try {
+            if (message.contains("LOAD_GAME")) {
+                ServerMessage serverMsg = gson.fromJson(message, ServerMessage.class);
+                ChessBoard board = gson.fromJson(serverMsg.getPayload(), ChessBoard.class);
+                ChessBoardRenderer renderer = new ChessBoardRenderer();
+                renderer.renderBoard(board, false);
+            } else {
+                ChessNotification notification = gson.fromJson(message, ChessNotification.class);
+                System.out.println("⚡ WebSocket message: " + notification.getMessage());
             }
+        } catch (Exception e) {
+            System.err.println("WebSocket error:");
+            e.printStackTrace();
         }
-        // Otherwise, treat it as a normal notification.
-        ChessNotification notification = new Gson().fromJson(message, ChessNotification.class);
-        System.out.println("⚡ WebSocket message: " + notification.getMessage());
     }
+
+
 
 
     @OnClose

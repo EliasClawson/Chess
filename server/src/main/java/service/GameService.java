@@ -125,11 +125,13 @@ public class GameService {
     }
 
     public ChessGame getFullGameState(int gameID) {
+        System.out.println("getFullGameState called");
         try {
             ChessGame game = gameDAO.getGame(gameID).getGame();
             if (game == null) {
                 throw new IllegalArgumentException("Game not found.");
             }
+            System.out.println("In Game Service, turn is " + game.getTeamTurn());
             return game;
         } catch (DataAccessException e) {
             throw new RuntimeException("Error fetching game state: " + e.getMessage(), e);
@@ -177,13 +179,8 @@ public class GameService {
             chessGame.makeMove(move);
 
             // Save updated game to DB using the shared gameDAO (not a new one)
-            gameDAO.updateGame(new GameData(
-                    gameData.getGameID(),
-                    gameData.getWhiteUsername(),
-                    gameData.getBlackUsername(),
-                    gameData.getGameName(),
-                    chessGame
-            ));
+            gameDAO.updateGame(gameData); // Use the same instance you just modified
+
         } catch (Exception e) {
             throw new RuntimeException("Failed to make move: " + e.getMessage(), e);
         }

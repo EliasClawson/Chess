@@ -36,6 +36,7 @@ public class GameData {
     }
     public ChessGame getGame() {
         System.out.println("getGame() called for game with ID: " + gameID);
+        System.out.println("Asking for game, turn is: " + game.getTeamTurn());
         return game;
     }
 }
