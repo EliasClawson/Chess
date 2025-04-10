@@ -67,7 +67,7 @@ public class Server {
         ClearService clearService = new ClearService(userDAO, gameDAO, authDAO);
 
         // Static file:
-        Spark.staticFileLocation("/web");
+        Spark.staticFileLocation("/public");
 
         // ✅ HTTP endpoints
         Spark.delete("/db", (req, res) -> new ClearHandler(clearService).handleRequest(req, res));
