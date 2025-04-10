@@ -35,4 +35,12 @@ public class ServerMessage {
     public ChessGame getGame() {
         return game;
     }
+
+    public String toString() {
+        return "ServerMessage{" +
+                "serverMessageType=" + serverMessageType +
+                ", payload='" + payload + '\'' +
+                ", game=" + game +
+                '}';
+    }
 }

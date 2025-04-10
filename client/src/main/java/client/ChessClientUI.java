@@ -277,7 +277,7 @@ public class ChessClientUI {
             // Start websocket connection for joining as a player:
             try {
                 String username = currentUser.getUsername();
-                String wsUrl = "ws://localhost:8081/"; // ensure this matches your server setup
+                String wsUrl = "ws://localhost:8080/ws"; // ensure this matches your server setup
                 // Use gameNum (the display number) for displayGameNumber,
                 // and set role based on joinAsWhite.
                 String displayGameNumber = String.valueOf(gameNum);

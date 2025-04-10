@@ -39,6 +39,7 @@ public class ChessWebSocketClient {
                 displayGameNumber,
                 role
         ));
+        //System.out.println("Sending join message about game: " + displayGameNumber);
         session.getAsyncRemote().sendText(joinMessage);
     }
 
@@ -90,14 +91,21 @@ public class ChessWebSocketClient {
     @OnMessage
     public void onMessage(String message) {
         try {
-            if (message.contains("LOAD_GAME")) {
-                ServerMessage serverMsg = gson.fromJson(message, ServerMessage.class);
-                ChessBoard board = gson.fromJson(serverMsg.getPayload(), ChessBoard.class);
-                ChessBoardRenderer renderer = new ChessBoardRenderer();
-                renderer.renderBoard(board, false);
-            } else {
+            System.out.println("IN onMessage, decoding message: " + message);
+            if (!(message.contains("serverMessageType"))) {
+                // likely a ChessNotification
                 ChessNotification notification = gson.fromJson(message, ChessNotification.class);
                 System.out.println("⚡ WebSocket message: " + notification.getMessage());
+            } else {
+                // likely a ServerMessage
+                ServerMessage serverMsg = gson.fromJson(message, ServerMessage.class);
+                if(message.contains("LOAD_GAME")) {  // add this
+                    System.out.println("⚡ Server message: " + serverMsg.getPayload());
+                } else {
+                    ChessBoard board = gson.fromJson(serverMsg.getPayload(), ChessBoard.class);
+                    ChessBoardRenderer renderer = new ChessBoardRenderer();
+                    renderer.renderBoard(board, false);
+                }
             }
         } catch (Exception e) {
             System.err.println("WebSocket error:");

@@ -124,6 +124,17 @@
             <scope>system</scope>
             <systemPath>${pom.basedir}/lib/passoff-dependencies.jar</systemPath>
         </dependency>
+        <dependency>
+            <groupId>org.glassfish.tyrus</groupId>
+            <artifactId>tyrus-server</artifactId>
+            <version>1.17</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.websocket</groupId>
+            <artifactId>jakarta.websocket-api</artifactId>
+            <version>1.1.2</version>
+        </dependency>
+
     </dependencies>
 
 
