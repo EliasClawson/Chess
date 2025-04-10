@@ -11,7 +11,6 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import server.Server;
 import websocket.messages.ChessAction;
 import websocket.messages.ChessNotification;
-import javax.websocket.server.ServerEndpoint;
 
 import java.io.IOException;
 import service.GameService;
