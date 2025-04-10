@@ -20,7 +20,7 @@ import websocket.messages.ServerMessage;
 public class GameWebSocket {
 
     // Use a static (shared) connection manager so all instances share the same connection list.
-    private static final ConnectionManager CONNECTIONS = new ConnectionManager();
+    private static final ConnectionManager Connections = new ConnectionManager();
 
     private final GameService gameService;
 
@@ -61,13 +61,13 @@ public class GameWebSocket {
         // Role should be "WHITE", "BLACK", or "OBSERVER"
         String role = action.getPlayerRole();
         // Add this connection to the shared connection manager.
-        CONNECTIONS.add(username, gameId, session);
+        Connections.add(username, gameId, session);
 
         //Server Message
         String msg = "You joined game " + displayNumber + " as " + role;
         ServerMessage loadGameMsg = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, game, msg);
         System.out.println("🔔 Sending LOAD_GAME message to new player: " + username);
-        CONNECTIONS.sendTo(gameId, username, loadGameMsg);
+        Connections.sendTo(gameId, username, loadGameMsg);
 
         // Chess notification
         ChessNotification playerNotification = new ChessNotification(
@@ -75,7 +75,7 @@ public class GameWebSocket {
                 username + " joined game " + displayNumber + " as " + role
         );
         System.out.println("🔔 Sending PLAYER_JOINED notification everyone except: " + username);
-        CONNECTIONS.broadcast(gameId, username, playerNotification);
+        Connections.broadcast(gameId, username, playerNotification);
     }
 
     private void handleMove(ChessAction action, Session session) throws IOException {
@@ -96,7 +96,7 @@ public class GameWebSocket {
                     ChessNotification.NotificationType.MOVE_MADE,
                     moveMessage
             );
-            CONNECTIONS.broadcast(gameId, notification);
+            Connections.broadcast(gameId, notification);
 
             // ✅ Broadcast the new board state as a raw ServerMessage
             ServerMessage loadGameMessage = new ServerMessage(
@@ -104,7 +104,7 @@ public class GameWebSocket {
                     new Gson().toJson(updatedGame.getBoard())
             );
             String json = new Gson().toJson(loadGameMessage);
-            CONNECTIONS.broadcastRaw(gameId, json);  // 🔥 this sends just the JSON, not wrapped in another object
+            Connections.broadcastRaw(gameId, json);  // 🔥 this sends just the JSON, not wrapped in another object
 
         } catch (Exception e) {
             // Broadcast an error message (as a normal notification)
@@ -112,7 +112,7 @@ public class GameWebSocket {
                     ChessNotification.NotificationType.MOVE_MADE,
                     "Error: " + e.getMessage()
             );
-            CONNECTIONS.broadcast(gameId, errorNotification);
+            Connections.broadcast(gameId, errorNotification);
         }
     }
 
@@ -126,7 +126,7 @@ public class GameWebSocket {
         String role = action.getPlayerRole();
         String msg = username + " resigned from game " + displayNumber + " as " + role;
         ChessNotification notification = new ChessNotification(ChessNotification.NotificationType.RESIGN, msg);
-        CONNECTIONS.broadcast(gameId, notification);
+        Connections.broadcast(gameId, notification);
     }
 
     private void leaveGame(ChessAction action) throws IOException {
@@ -136,7 +136,7 @@ public class GameWebSocket {
         String role = action.getPlayerRole();
         String msg = username + " left game " + displayNumber + " as " + role;
         ChessNotification notification = new ChessNotification(ChessNotification.NotificationType.PLAYER_LEFT, msg);
-        CONNECTIONS.broadcast(gameId, notification);
-        CONNECTIONS.remove(username, gameId);
+        Connections.broadcast(gameId, notification);
+        Connections.remove(username, gameId);
     }
 }
