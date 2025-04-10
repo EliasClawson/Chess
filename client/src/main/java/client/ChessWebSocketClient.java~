@@ -113,7 +113,21 @@ public class ChessWebSocketClient {
         }
     }
 
+
+
+
+    @OnClose
+    public void onClose(Session session, CloseReason reason) {
+        System.out.println("Successfully disconnected from game server");
+    }
+
+    @OnError
+    public void onError(Session session, Throwable throwable) {
+        System.err.println("WebSocket error:");
+        throwable.printStackTrace();
+    }
+
     public void close() throws Exception {
-        if (session != null) {session.close();}
+        if (session != null) session.close();
     }
 }

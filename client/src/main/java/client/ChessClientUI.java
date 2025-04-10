@@ -1,14 +1,11 @@
 package client;
-
 import java.util.List;
 import java.util.Scanner;
-
 import chess.ChessBoard;
 import com.google.gson.Gson;
 import model.AuthData;
 import model.GameInfo;
 import ui.ChessBoardRenderer;
-import client.ClientErrorResponse;
 import java.io.IOException;
 import chess.ChessGame;
 
@@ -16,12 +13,9 @@ public class ChessClientUI {
 
     private static ServerFacade facade;
     private final Scanner scanner;
-    // You might want to store the currently logged-in user here.
     private static AuthData currentUser;
-    // For drawing the board:
     private static ChessBoardRenderer boardRenderer;
     private ChessWebSocketClient webSocketClient;
-
     private List<GameInfo> lastGames;
     private boolean inGame;
     private static boolean isPlayerWhite;
@@ -35,20 +29,18 @@ public class ChessClientUI {
         this.boardRenderer = new ChessBoardRenderer();
         this.inGame = false;
     }
-
     public void run() throws IOException {
         // Main loop: switch between prelogin and postlogin
         while (true) {
             if (currentUser == null) {
                 preloginMenu();
-            } else if (!inGame){
+            } else if (!inGame) {
                 postloginMenu();
             } else {
                 inGameMenu();
             }
         }
     }
-
     private void preloginMenu() throws IOException {
         System.out.println("=== Prelogin Menu ===");
         System.out.println("1. Help");
@@ -79,7 +71,6 @@ public class ChessClientUI {
                 System.out.println("Invalid option.");
         }
     }
-
     private void postloginMenu() {
         System.out.println("=== Postlogin Menu ===");
         System.out.println("1. Help");
@@ -113,7 +104,6 @@ public class ChessClientUI {
                 System.out.println("Invalid option.");
         }
     }
-
     private void inGameMenu() {
         System.out.println("=== In Game Menu ===");
         System.out.println("1. Help");
@@ -147,7 +137,6 @@ public class ChessClientUI {
                 System.out.println("Invalid option.");
         }
     }
-
     // Implement each command's logic (calling facade methods, handling input, etc.)
     private void doRegister() {
         try {
@@ -164,7 +153,6 @@ public class ChessClientUI {
             System.out.println(extractErrorMessage(e.getMessage()));
         }
     }
-
     private void doLogin() {
         try {
             System.out.print("Username: ");
@@ -178,7 +166,6 @@ public class ChessClientUI {
             System.out.println(extractErrorMessage(e.getMessage()));
         }
     }
-
     private void doLogout() {
         try {
             facade.logout(currentUser.getAuthToken());
@@ -188,7 +175,6 @@ public class ChessClientUI {
             System.out.println(extractErrorMessage(e.getMessage()));
         }
     }
-
     private void doCreateGame() {
         try {
             System.out.print("Enter game name: ");
@@ -199,7 +185,6 @@ public class ChessClientUI {
             System.out.println(extractErrorMessage(e.getMessage()));
         }
     }
-
     private void doListGames() {
         try {
             lastGames = facade.listGames(currentUser.getAuthToken());
@@ -210,8 +195,6 @@ public class ChessClientUI {
             System.out.println("Available Games:");
             int i = 1;
             for (GameInfo game : lastGames) {
-                // You can choose what information to show for each game.
-                // For example, game name and the players (if any).
                 System.out.println(i + ". " + game.gameName() + " (White: "
                         + (game.whiteUsername() == null ? "None" : game.whiteUsername())
                         + ", Black: "
@@ -223,8 +206,6 @@ public class ChessClientUI {
             System.out.println(extractErrorMessage(e.getMessage()));
         }
     }
-
-
     private void doJoinGame() {
         try {
             lastGames = facade.listGames(currentUser.getAuthToken());
@@ -246,10 +227,8 @@ public class ChessClientUI {
                     System.out.println("Invalid input. Please enter a valid integer.");
                 }
             }
-
             // Look up the gameID from the list based on the display number.
             int gameID = lastGames.get(gameNum - 1).gameID();
-
             String color = "";
             while (true) {
                 System.out.print("Join as (WHITE/BLACK): ");
@@ -262,7 +241,6 @@ public class ChessClientUI {
                     System.out.println("Invalid input. Please enter either 'WHITE' or 'BLACK'.");
                 }
             }
-
             boolean joinAsWhite = color.equalsIgnoreCase("WHITE") || color.equalsIgnoreCase("W");
             facade.joinGame(currentUser.getAuthToken(), gameID, joinAsWhite);
             System.out.println("Joined game " + gameNum + " as " + (joinAsWhite ? "WHITE" : "BLACK"));
@@ -272,21 +250,17 @@ public class ChessClientUI {
             this.currentGameNumber = gameNum;
             this.isPlayerWhite = joinAsWhite;
             this.isObserver = false;
-
-            //Start websocket connection
             // Start websocket connection for joining as a player:
             try {
                 String username = currentUser.getUsername();
-                String wsUrl = "ws://localhost:8080/ws"; // ensure this matches your server setup
+                String wsUrl = "ws://localhost:8080/ws";
                 // Use gameNum (the display number) for displayGameNumber,
                 // and set role based on joinAsWhite.
                 String displayGameNumber = String.valueOf(gameNum);
                 String role = joinAsWhite ? "WHITE" : "BLACK";
-
                 webSocketClient = new ChessWebSocketClient();
                 // Use the new overloaded connect() method:
                 webSocketClient.connect(wsUrl, username, gameID, displayGameNumber, role);
-
                 System.out.println("🎉 Connected to game " + displayGameNumber);
 
             } catch (Exception e) {
@@ -297,7 +271,6 @@ public class ChessClientUI {
             System.out.println(extractErrorMessage(e.getMessage()));
         }
     }
-
     private void doLeaveGame() {
         try {
             // Only call the REST update if the user is a player
@@ -307,7 +280,6 @@ public class ChessClientUI {
             } else {
                 System.out.println("As an observer, no REST update is needed.");
             }
-
             if (webSocketClient != null) {
                 String displayGameNumber = String.valueOf(currentGameNumber);
                 String username = currentUser.getUsername();
@@ -316,10 +288,9 @@ public class ChessClientUI {
 
                 // Wait for leave acknowledgement
                 for (int i = 0; i < 10; i++) {
-                    if (webSocketClient.leaveAcknowledged) break;
+                    if (webSocketClient.leaveAcknowledged) {break;}
                     Thread.sleep(50);
                 }
-
                 webSocketClient.close();
                 webSocketClient = null;
             }
@@ -328,14 +299,10 @@ public class ChessClientUI {
             System.out.println("Error leaving game: " + extractErrorMessage(e.getMessage()));
         }
     }
-
-
-
     private void doResignGame() {
         try {
             facade.resignGame(currentUser.getAuthToken(), currentGameID);
             System.out.println("You have resigned the game (REST update successful).");
-
             if (webSocketClient != null) {
                 // Use the new sendResign method:
                 String displayGameNumber = String.valueOf(currentGameID); // adjust if needed
@@ -349,11 +316,6 @@ public class ChessClientUI {
             System.out.println("Error resigning game: " + extractErrorMessage(e.getMessage()));
         }
     }
-
-
-
-
-
     private void doObserveGame() {
         try {
             lastGames = facade.listGames(currentUser.getAuthToken());
@@ -365,7 +327,6 @@ public class ChessClientUI {
             System.out.println(extractErrorMessage(e.getMessage()));
             return;
         }
-
         int gameNum;
         while (true) {
             try {
@@ -380,20 +341,16 @@ public class ChessClientUI {
                 System.out.println("Invalid input. Please enter a valid integer.");
             }
         }
-
         int gameID = lastGames.get(gameNum - 1).gameID();
         this.currentGameID = gameID;
         this.currentGameNumber = gameNum;
         this.isObserver = true;
         this.isPlayerWhite = true; // Note really but just to display
-
-        // Optionally retrieve and show game state
         try {
             doRedrawBoard();
         } catch (Exception e) {
             System.out.println("Error fetching game state: " + extractErrorMessage(e.getMessage()));
         }
-
         // Open a WebSocket connection using the standard JOIN action.
         try {
             String wsUrl = "ws://localhost:8081/"; // Use your WebSocket server port
@@ -401,8 +358,6 @@ public class ChessClientUI {
             String username = currentUser.getUsername();
             String role = "Observer";
             String displayGameNumber = String.valueOf(gameNum);
-
-            // Notice: we use the normal join (not a separate OBSERVE action)
             webSocketClient.connect(wsUrl, username, gameID, displayGameNumber, role);
             System.out.println("Now observing game " + gameNum);
             inGame = true;
@@ -411,37 +366,21 @@ public class ChessClientUI {
             e.printStackTrace();
         }
     }
-
-
     static void doRedrawBoard() {
         try {
-            //System.out.println("Redrawing board with messy ID: " + currentGameID);
-            ChessBoard gameBoard  = facade.getGameState(currentUser.getAuthToken(), currentGameID);
-            //System.out.println("Got this board from the server:\n" + gameBoard);
+            ChessBoard gameBoard = facade.getGameState(currentUser.getAuthToken(), currentGameID);
             boardRenderer.renderBoard(gameBoard, !isPlayerWhite);
         } catch (Exception e) {
             System.out.println("Failed to redraw board: " + extractErrorMessage(e.getMessage()));
         }
     }
-
     private void doHighlightMoves() {
         try {
-            // Prompt for a position input (e.g., "e2")
             System.out.print("Enter board position of piece to highlight legal moves:");
             String posInput = scanner.nextLine().trim();
             chess.ChessPosition pos = parsePosition(posInput);
-
             // Retrieve the current full game state from the server.
-            // You can call facade.getGameState() if it returns a ChessGame.
-            // Otherwise, maintain your local game state.
             ChessGame gameState = facade.getFullGameState(currentUser.getAuthToken(), currentGameID);
-            // Alternatively, if your facade.getGameState returns only a ChessBoard,
-            // ensure you have a way to get the full ChessGame.
-
-            // Compute legal moves using the game logic.
-            // validMoves(...) returns a Collection<ChessMove>.
-            // NOTE: Your ChessGame.validMoves(pos) method exists as per your ChessGame.java.
-            // (Assuming that gameState is an instance of ChessGame)
             var legalMoves = gameState.validMoves(pos);
             if (legalMoves == null || legalMoves.isEmpty()) {
                 System.out.println("No legal moves available for the piece at " + posInput);
@@ -451,18 +390,11 @@ public class ChessClientUI {
                     System.out.println("From " + move.getStartPosition() + " to " + move.getEndPosition());
                 }
             }
-
-            // Now redraw the board, highlighting the squares of legal moves.
-            // For this, modify your board renderer method to accept a collection of moves to highlight.
-            // For example, add an overloaded renderBoard method:
             boardRenderer.renderBoardHighlights(gameState.getBoard(), !isPlayerWhite, legalMoves);
-
         } catch (Exception e) {
             System.out.println("Error highlighting moves: " + e.getMessage());
         }
     }
-
-    // This method should run from within your ChessClientUI
     private void doMakeMove() {
         try {
             // Ensure player (not observer) and that it's their turn.
@@ -470,39 +402,29 @@ public class ChessClientUI {
                 System.out.println("Observers cannot make moves.");
                 return;
             }
-
             // Retrieve the full game state.
             chess.ChessGame gameState = facade.getFullGameState(currentUser.getAuthToken(), currentGameID);
             System.out.println("Current game state has turn: " + gameState.getTeamTurn());
             System.out.println("Is player white: " + isPlayerWhite);
-            if ( (isPlayerWhite && gameState.getTeamTurn() != chess.ChessGame.TeamColor.WHITE) ||
-                    (!isPlayerWhite && gameState.getTeamTurn() != chess.ChessGame.TeamColor.BLACK) ) {
+            if ((isPlayerWhite && gameState.getTeamTurn() != chess.ChessGame.TeamColor.WHITE) ||
+                    (!isPlayerWhite && gameState.getTeamTurn() != chess.ChessGame.TeamColor.BLACK)) {
                 System.out.println("It's not your turn.");
                 return;
             }
-
             // Prompt for move string.
             System.out.print("Enter your move (e.g., e2e4): ");
             String moveInput = scanner.nextLine().trim();
-
-            // (Optional) Parse move string to validate format.
             chess.ChessMove move = parseMove(moveInput);
-
             // Send move over WebSocket.
             webSocketClient.sendMove(currentUser.getUsername(), currentGameID, moveInput);
             System.out.println("Move sent: " + moveInput);
-
-            //doRedrawBoard();
         } catch (Exception e) {
             System.out.println("Error making move: " + e.getMessage());
         }
     }
-
     public interface GameUpdateListener {
         void updateGame(ChessBoard newBoard);
     }
-
-
     private chess.ChessMove parseMove(String input) throws IllegalArgumentException {
         // Expect input of exactly 4 characters (e.g., "e2e4")
         if (input == null || input.length() != 4) {
@@ -510,16 +432,11 @@ public class ChessClientUI {
         }
         String startPart = input.substring(0, 2);
         String endPart = input.substring(2, 4);
-
         chess.ChessPosition start = parsePosition(startPart);
         chess.ChessPosition end = parsePosition(endPart);
-
         // Create a ChessMove; if your constructor requires a promotion piece, you can pass null.
         return new chess.ChessMove(start, end, null);
     }
-
-
-
     // Example helper inside ChessClientUI or a separate utility class.
     private chess.ChessPosition parsePosition(String pos) throws IllegalArgumentException {
         // Expect pos in the format "e2" (column letter, row number)
@@ -535,15 +452,12 @@ public class ChessClientUI {
         int col = colChar - 'a' + 1;
         return new chess.ChessPosition(row, col);
     }
-
-
     private void printPreloginHelp() {
         System.out.println("Prelogin Help:");
         System.out.println(" - Register: Create a new user account.");
         System.out.println(" - Login: Log in to your account.");
         System.out.println(" - Quit: Exit the application.");
     }
-
     private void printPostloginHelp() {
         System.out.println("Postlogin Help:");
         System.out.println(" - Logout: Log out of your account.");
@@ -552,7 +466,6 @@ public class ChessClientUI {
         System.out.println(" - Play Game: Join a game as a player.");
         System.out.println(" - Observe Game: Watch a game (for now, just draw the board).");
     }
-
     private void printInGameHelp() {
         System.out.println("In Game Help:");
         System.out.println(" - Redraw chess board: Reload the current chessboard.");
@@ -561,7 +474,6 @@ public class ChessClientUI {
         System.out.println(" - Resign: Resign the current game. Ends Game.");
         System.out.println(" - Highlight Legal Moves: Enter a piece and highlight legal moves on the board.");
     }
-
     private static String extractErrorMessage(String jsonMessage) {
         try {
             Gson gson = new Gson();
@@ -572,5 +484,4 @@ public class ChessClientUI {
             return jsonMessage;
         }
     }
-
 }

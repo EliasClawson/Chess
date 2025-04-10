@@ -34,7 +34,7 @@ public class ConnectionManager {
     // Broadcast a message to all connections in a game, optionally excluding one username.
     public void broadcast(int gameId, String excludeUsername, ChessNotification notification) throws IOException {
         System.out.println("Broadcasting to " + gameId + " excluding " + excludeUsername);
-        if (!gameConnections.containsKey(gameId)) return;
+        if (!gameConnections.containsKey(gameId)) {return;}
 
         String json = new Gson().toJson(notification);
         var connections = gameConnections.get(gameId);
@@ -65,7 +65,7 @@ public class ConnectionManager {
     }
 
     public void broadcast(int gameId, ServerMessage message) throws IOException {
-        if (!gameConnections.containsKey(gameId)) return;
+        if (!gameConnections.containsKey(gameId)) {return;}
 
         String json = new Gson().toJson(message);
         var connections = gameConnections.get(gameId);
@@ -89,7 +89,7 @@ public class ConnectionManager {
 
     // Broadcast a raw JSON string (like a ServerMessage) to everyone in a game.
     public void broadcastRaw(int gameId, String message) throws IOException {
-        if (!gameConnections.containsKey(gameId)) return;
+        if (!gameConnections.containsKey(gameId)) {return;}
 
         var connections = gameConnections.get(gameId);
         var removeList = new ArrayList<Connection>();
@@ -107,7 +107,7 @@ public class ConnectionManager {
         }
     }
     public void sendTo(int gameId, String username, ServerMessage message) throws IOException {
-        if (!gameConnections.containsKey(gameId)) return;
+        if (!gameConnections.containsKey(gameId)) {return;}
 
         var connections = gameConnections.get(gameId);
         var conn = connections.get(username);
